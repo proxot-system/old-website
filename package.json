@@ -4,14 +4,14 @@
     "path": false,
     "os": false
   },
-  "name": "twm-website",
+  "name": "old-website",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start -p 9077",
-    "lint": "next lint"
+    "dev": "bun --bun next dev",
+    "build": "bun --bun next build",
+    "start": "bun --bun next start -p 9077",
+    "lint": "bun --bun next lint"
   },
   "dependencies": {
     "98.css": "^0.1.21",
