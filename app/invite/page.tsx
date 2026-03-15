@@ -21,7 +21,7 @@ export default function Invite() {
       <Window title="Invite" className="max-w-[800px]">
         <div className="flex justify-center flex-col font-main my-10 mx-10">
           <p className="text-center text-lg text-black mb-5">
-            You want to invite The World Machine? That's great! Here are a few
+            You want to invite the Proxot System? That's great! Here are a few
             features to win you over more, and a shiny button to do the deed.
           </p>
           <button
@@ -31,11 +31,6 @@ export default function Invite() {
             <h1 className="mr-2 text-2xl my-auto">Invite Now!!!</h1>
           </button>
 
-          <CommandPanel
-            image="music"
-            title="Music"
-            description="Play music in your server 24/7 for free, with multiple providers, such as Spotify, SoundCloud or even your own music or video files! Play Spotify playlists and albums with ease and enjoy a dynamic player so you know exactly where the music starts and stops."
-          />
           <CommandPanel
             image="transmissions"
             title="Transmissions"

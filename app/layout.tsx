@@ -6,8 +6,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-	title: "The World Machine",
-	description: "A fun Discord bot based off OneShot.",
+	title: "Proxot System",
+	description: "Proxy to a OneShot world and more (also known as The World Machine discord bot)",
 };
 
 export default function RootLayout({

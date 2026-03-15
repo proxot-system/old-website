@@ -8,7 +8,7 @@ export default function Footer() {
 			<div className="flex justify-between mt-1">
 				<DiscordLogin />
 				<div className="text-black right-5 text-sm sm:text-xl mx-auto my-auto">
-					The World Machine
+					Proxot System
 				</div>
 			</div>
 		</div>

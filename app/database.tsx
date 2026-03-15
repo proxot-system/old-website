@@ -110,7 +110,7 @@ export async function GetLeaderboard(sortBy: string) {
 				const username = await GetDiscordData(doc._id);
 				if (
 					username == "" ||
-					["twm", "the world machine"].some((a) =>
+					["twm", "the world machine", "proxot", "proxot system"].some((a) =>
 						username.toLowerCase().includes(a),
 					)
 				)

@@ -52,7 +52,7 @@ export default function NavBar() {
 				onClick={() => handleClick()}
 				className="text-3xl text-twm-highlight my-auto ml-4 hover:cursor-pointer hover:scale-105 transition-transform duration-200 hover:text-twm-sun"
 			>
-				The World Machine
+				Proxot System
 			</h1>
 
 			{isMobile ? (

@@ -109,7 +109,7 @@ function BlogContent() {
     return (
       <div className=" text-black min-w-[5px]">
         <Head>
-          <title>The World Machine</title>
+          <title>Proxot System</title>
           <meta name="description" content={post.description} />
           <meta property="og:title" content={post.title} />
           <meta property="og:description" content={post.description} />

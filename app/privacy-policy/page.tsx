@@ -10,7 +10,7 @@ export default function PrivacyPolicy() {
 				<div className="px-5 w-auto max-w-[1000px] h-screen">
 					<h1 className="text-5xl text-twm-sun text-center">Privacy Policy</h1>
 					<p className="text-xl my-4 text-center">
-						Effective as of: November 1st, 2023
+						Last updated: March 14th, 2026
 					</p>
 					<p className="text-md my-4 text-center">
 						This Privacy Policy is intended to inform users about how we handle
@@ -18,7 +18,7 @@ export default function PrivacyPolicy() {
 					</p>
 					<p className="text-xl mt-8 text-center">Data Collection</p>
 					<p className="text-md text-center">
-						1.1. Message Content: The World Machine processes message content
+						1.1. Message Content: The Proxot System processes message content
 						when users utilize the /transmit command to communicate with other
 						servers. We do not store this information in any form, and we only
 						use the message content to send messages to the designated server
@@ -45,9 +45,8 @@ export default function PrivacyPolicy() {
 							href="https://discord.gg/gtfeHfka5h"
 							className="text-twm-highlight"
 						>
-							Support Server
-						</a>
-						, or message the bot's owner (axiinyaa) on Discord.
+							Discord Support Server
+						</a>, or email <a href="mailto:proxot.system@gmail.com" className="text-twm-highlight">proxot.system@gmail.com</a>.
 					</p>
 				</div>
 				<button
