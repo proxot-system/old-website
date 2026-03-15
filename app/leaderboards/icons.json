@@ -1,27 +1,26 @@
 {
-    "wool_icon": "https://cdn.discordapp.com/emojis/1044668364422918176.webp?size=128&quality=lossless",
-    "wool_gold": "https://cdn.discordapp.com/emojis/1117866362233172098.webp?size=128&quality=lossless",
-    "wool_silver": "https://cdn.discordapp.com/emojis/1117866363508236369.webp?size=128&quality=lossless",  
-    "wool_bronze": "https://cdn.discordapp.com/emojis/1117866365441822780.webp?size=128&quality=lossless",
-    
-    "sun_icon": "https://cdn.discordapp.com/emojis/1026207773559619644.webp?size=128&quality=lossless",
-    "sun_gold": "https://cdn.discordapp.com/emojis/1138292743173574656.webp?size=128&quality=lossless",
-    "sun_silver": "https://cdn.discordapp.com/emojis/1138292744914227200.webp?size=128&quality=lossless",
-    "sun_bronze": "https://cdn.discordapp.com/emojis/1117866365441822780.webp?size=128&quality=lossless",
-  
-    "ask_icon": "https://cdn.discordapp.com/emojis/1026181556051648634.webp?size=128&quality=lossless",
-    "ask_gold": "https://cdn.discordapp.com/emojis/1037781836513935470.webp?size=128&quality=lossless",
-    "ask_silver": "https://cdn.discordapp.com/emojis/1037781837763858442.webp?size=128&quality=lossless",
-    "ask_bronze": "https://cdn.discordapp.com/emojis/1037781835113046056.webp?size=128&quality=lossless",
-  
-    "transmit_icon": "https://cdn.discordapp.com/emojis/1138305885383438438.webp?size=128&quality=lossless",
-    "transmit_gold": "https://cdn.discordapp.com/emojis/1138305881193316425.webp?size=128&quality=lossless",
-    "transmit_silver": "https://cdn.discordapp.com/emojis/1138305882963316766.webp?size=128&quality=lossless",
-    "transmit_bronze": "https://cdn.discordapp.com/emojis/1138305877082898433.webp?size=128&quality=lossless",
-  
-    "explode_icon": "https://cdn.discordapp.com/emojis/1026207767142342838.webp?size=128&quality=lossless",
-    "explode_gold": "https://cdn.discordapp.com/emojis/1026207769969307698.webp?size=128&quality=lossless",
-    "explode_silver": "https://cdn.discordapp.com/emojis/1026207771198226462.webp?size=128&quality=lossless",
-    "explode_bronze": "https://cdn.discordapp.com/emojis/1026207768643907705.webp?size=128&quality=lossless"
-  }
-  
+	"wool_icon": "https://cdn.discordapp.com/emojis/1044668364422918176.webp?size=128&quality=lossless",
+	"wool_gold": "https://cdn.discordapp.com/emojis/1117866362233172098.webp?size=128&quality=lossless",
+	"wool_silver": "https://cdn.discordapp.com/emojis/1117866363508236369.webp?size=128&quality=lossless",
+	"wool_bronze": "https://cdn.discordapp.com/emojis/1117866365441822780.webp?size=128&quality=lossless",
+
+	"sun_icon": "https://cdn.discordapp.com/emojis/1026207773559619644.webp?size=128&quality=lossless",
+	"sun_gold": "https://cdn.discordapp.com/emojis/1138292743173574656.webp?size=128&quality=lossless",
+	"sun_silver": "https://cdn.discordapp.com/emojis/1138292744914227200.webp?size=128&quality=lossless",
+	"sun_bronze": "https://cdn.discordapp.com/emojis/1117866365441822780.webp?size=128&quality=lossless",
+
+	"ask_icon": "https://cdn.discordapp.com/emojis/1026181556051648634.webp?size=128&quality=lossless",
+	"ask_gold": "https://cdn.discordapp.com/emojis/1037781836513935470.webp?size=128&quality=lossless",
+	"ask_silver": "https://cdn.discordapp.com/emojis/1037781837763858442.webp?size=128&quality=lossless",
+	"ask_bronze": "https://cdn.discordapp.com/emojis/1037781835113046056.webp?size=128&quality=lossless",
+
+	"transmit_icon": "https://cdn.discordapp.com/emojis/1138305885383438438.webp?size=128&quality=lossless",
+	"transmit_gold": "https://cdn.discordapp.com/emojis/1138305881193316425.webp?size=128&quality=lossless",
+	"transmit_silver": "https://cdn.discordapp.com/emojis/1138305882963316766.webp?size=128&quality=lossless",
+	"transmit_bronze": "https://cdn.discordapp.com/emojis/1138305877082898433.webp?size=128&quality=lossless",
+
+	"explode_icon": "https://cdn.discordapp.com/emojis/1026207767142342838.webp?size=128&quality=lossless",
+	"explode_gold": "https://cdn.discordapp.com/emojis/1026207769969307698.webp?size=128&quality=lossless",
+	"explode_silver": "https://cdn.discordapp.com/emojis/1026207771198226462.webp?size=128&quality=lossless",
+	"explode_bronze": "https://cdn.discordapp.com/emojis/1026207768643907705.webp?size=128&quality=lossless"
+}
