@@ -8,7 +8,7 @@
 	"version": "0.1.0",
 	"private": true,
 	"scripts": {
-		"dev": "bun --bun next dev",
+		"dev": "bun --bun next dev -p 9077",
 		"build": "bun --bun next build",
 		"start": "bun --bun next start -p 9077",
 		"lint": "bun --bun next lint"

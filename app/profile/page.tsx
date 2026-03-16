@@ -265,22 +265,18 @@ export default function Profile() {
     const updateData = async () => {
       if (!saveToDatabase) {
         return;
-      } // We don't need to update the database if the database doesn't need updating.
-      if (!userData) {
+      }
+      if (!userToUpdate) {
         return;
-      } // Likewise if we don't have user data.
+      }
 
-      await updateToDatabase(userData, [
-        "equipped_bg",
-        "badge_notifications",
-        "profile_description",
-      ]);
+      await updateToDatabase(userToUpdate);
 
       setSaveToDatabase(false);
     };
 
     updateData();
-  }, [saveToDatabase]);
+  }, [saveToDatabase, userToUpdate]);
 
   if (pageStatus === "success") {
     return Page();

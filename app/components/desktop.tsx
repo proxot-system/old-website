@@ -13,13 +13,13 @@ export default function Desktop(props: { children: ReactNode }) {
 				<meta
 					name="description"
 					
-					content="Proxy to a OneShot world and more. Part of it is also a discord bot called The World Machine. Invite it to your server and get neat features such as games, textbox dialogue generating and more!"
+					content="Proxy to a OneShot world and more. The World Machine uses it to interact with people on discord. Invite it to your server and get neat features such as games, textbox dialogue generating and more!"
 				/>
 
 				<meta name="og:title" content="Proxot System" />
 				<meta
 					name="og:description"
-					content="Proxy to a OneShot world and more. Part of it is also a discord bot called The World Machine. Invite it to your server and get neat features such as games, textbox dialogue generating and more!"
+					content="Proxy to a OneShot world and more. The World Machine uses it to interact with people on discord. Invite it to your server and get neat features such as games, textbox dialogue generating and more!"
 				/>
 				<meta
 					name="og:image"

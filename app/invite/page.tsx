@@ -21,14 +21,14 @@ export default function Invite() {
       <Window title="Invite" className="max-w-[800px]">
         <div className="flex justify-center flex-col font-main my-10 mx-10">
           <p className="text-center text-lg text-black mb-5">
-            You want to invite the Proxot System? That's great! Here are a few
-            features to win you over more, and a shiny button to do the deed.
+            You want to interact with The World Machine through Proxot? That's great! Here's a few
+            things you'll be able to do, and a shiny button to do the deed.
           </p>
           <button
             onClick={handleClick}
             className="flex justify-between text-black w-[200px] mx-auto h-16 mb-10"
           >
-            <h1 className="mr-2 text-2xl my-auto">Invite Now!!!</h1>
+            <h1 className="mr-2 text-2xl my-auto">Add Now</h1>
           </button>
 
           <CommandPanel

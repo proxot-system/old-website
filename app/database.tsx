@@ -1,6 +1,8 @@
 "use server";
 import axios, { all, AxiosError } from "axios";
 import { Collection, MongoClient, ObjectId } from "mongodb";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "./api/auth/[...nextauth]/options";
 import {
 	UserData,
 	LeaderboardUser,
@@ -15,7 +17,7 @@ const limit = pLimit(3);
 
 let collection: null | Collection<any> = null;
 
-const uri = process.env.NEXT_PUBLIC_DB_URI as string;
+const uri = process.env.DB_URI as string;
 const dbClient: MongoClient = new MongoClient(uri);
 dbClient.connect();
 
@@ -44,25 +46,39 @@ async function getCollection(name: string) {
 }
 
 export async function Fetch(user: string): Promise<UserData | null> {
-	const user_data_collection = await getCollection("UserData");
-	const userDataFromDB = await user_data_collection.findOne({ _id: user });
+	const session = await getServerSession(authOptions);
+	if (!session?.user_id || session.user_id !== user) {
+		throw new Error("Unauthorized");
+	}
 
-	// Check if userDataFromDB is not null
+	if (!user) return null;
+	const safeUserId = String(user);
+
+	const user_data_collection = await getCollection("UserData");
+	const userDataFromDB = await user_data_collection.findOne({ _id: safeUserId });
+
 	if (userDataFromDB) {
-		// Use type assertion here
 		return userDataFromDB;
 	} else {
 		const defaultData = new UserData();
-		await user_data_collection.insertOne({ _id: user, ...defaultData });
-		return Fetch(user);
+		await user_data_collection.insertOne({ _id: safeUserId, ...defaultData });
+		return Fetch(safeUserId);
 	}
 }
 
 export async function GetNikogotchiData(
 	user: string,
 ): Promise<NikogotchiData | null> {
+	const session = await getServerSession(authOptions);
+	if (!session?.user_id || session.user_id !== user) {
+		throw new Error("Unauthorized");
+	}
+
+	if (!user) return null;
+	const safeUserId = String(user);
+
 	const user_data_collection = await getCollection("UserNikogotchis");
-	const userDataFromDB = await user_data_collection.findOne({ _id: user });
+	const userDataFromDB = await user_data_collection.findOne({ _id: safeUserId });
 
 	if (userDataFromDB) {
 		return userDataFromDB as unknown as NikogotchiData;
@@ -71,43 +87,80 @@ export async function GetNikogotchiData(
 	}
 }
 
-export async function Update(user: Partial<UserData>, filter: Array<String>) {
+export async function Update(user: Partial<UserData>) {
+	const session = await getServerSession(authOptions);
+	if (!session || !session.user_id) {
+		throw new Error("Unauthorized");
+	}
+
+	// Trust the ID from the server session instead of the client's payload.
+	const safeUserId = String(session.user_id);
 	const user_data_collection = await getCollection("UserData");
+
+	// VULNERABILITY FIX: Define a strict, server-side allowlist of modifiable fields.
+	// This prevents clients from modifying protected fields like 'wool' or 'suns'.
+	const ALLOWED_FIELDS = [
+		"equipped_bg",
+		"badge_notifications",
+		"profile_description",
+		"translation_language",
+	];
 
 	const filteredData: { [key: string]: any } = {};
 
-	filter.forEach((field) => {
+	// Iterate over the secure allowlist, not client-provided data.
+	ALLOWED_FIELDS.forEach((field) => {
 		if (user[field as keyof UserData] !== undefined) {
 			filteredData[field as keyof UserData] = user[field as keyof UserData];
 		}
 	});
 
+	// Prevent sending an empty update to the database.
+	if (Object.keys(filteredData).length === 0) {
+		console.log("No valid fields to update.");
+		return;
+	}
+
 	try {
 		const result = await user_data_collection.updateOne(
-			{ _id: user._id },
+			{ _id: safeUserId },
 			{ $set: filteredData },
 		);
 		console.log(result.matchedCount);
 	} catch (error) {
 		console.error("Error updating database: " + error);
 	}
-
-	console.log(user);
 }
+
+
 export async function GetLeaderboard(sortBy: string) {
+	const allowedSortFields = [
+		"wool",
+		"suns",
+		"times_asked",
+		"times_shattered",
+		"times_transmitted",
+	];
+	if (!sortBy || !allowedSortFields.includes(sortBy)) {
+		return [];
+	}
+
+	const safeSortBy = String(sortBy);
+
 	const user_data_collection = await getCollection("UserData");
 	const leaderboard: LeaderboardUser[] = [];
 
 	try {
 		const cursor = await user_data_collection.aggregate([
-			{ $sort: { [sortBy]: -1 } },
+			{ $sort: { [safeSortBy]: -1 } },
 			{ $limit: 15 },
+			{ $project: { _id: 1, [safeSortBy]: 1, wool: 1 } },
 		]);
 		const result = await cursor.toArray();
 
 		const userPromises = result.map((doc) =>
 			limit(async () => {
-				const username = await GetDiscordData(doc._id);
+				const username = await GetDiscordData(String(doc._id));
 				if (
 					username == "" ||
 					["twm", "the world machine", "proxot", "proxot system"].some((a) =>
@@ -118,10 +171,10 @@ export async function GetLeaderboard(sortBy: string) {
 
 				return {
 					name: username,
-					type: sortBy,
+					type: safeSortBy,
 					data: {
 						...doc,
-						wool: doc.wool.toLocaleString(),
+						wool: doc.wool ? doc.wool.toLocaleString() : "0",
 					} as UserData,
 				} as LeaderboardUser;
 			}),
@@ -156,28 +209,42 @@ const users: any = {};
 const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export async function GetDiscordData(userID: string) {
-	if (users[userID] === undefined) {
+	if (!userID) return "";
+
+	const discordIdRegex = /^\d{17,20}$/;
+	if (!discordIdRegex.test(userID)) {
+		console.error(`Invalid Discord ID format received: ${userID}`);
+		return "";
+	}
+
+	const safeUserId = String(userID);
+
+	if (users[safeUserId] === undefined) {
 		try {
 			const response = await axios.get(
-				`https://discord.com/api/users/${userID}`,
+				`https://discord.com/api/users/${safeUserId}`,
 				{
 					headers: {
-						Authorization: `Bot ${process.env.NEXT_PUBLIC_DISCORD_BOT_ID}`,
+						Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
 					},
 				},
 			);
 
-			users[userID] = response.data.username;
+			users[safeUserId] = response.data.username;
 		} catch (e: any) {
 			if (e.message === "Request failed with status code 429") {
 				await wait((e.response.data.retry_after + 0.5) * 1000);
-				return await GetDiscordData(userID);
+				return await GetDiscordData(safeUserId);
+			}
+			if (e.response && e.response.status === 404) {
+				users[safeUserId] = `[Deleted User]`;
+				return users[safeUserId];
 			}
 			throw e;
 		}
 	}
 
-	return users[userID];
+	return users[safeUserId];
 }
 
 export async function GetBackgrounds() {
@@ -206,6 +273,11 @@ export async function FetchBlogPosts() {
 }
 
 export async function UploadBlogPost(post: BlogPost) {
+	const session = await getServerSession(authOptions);
+	if (!session || session.user_id !== "302883948424462346") {
+		throw new Error("Unauthorized");
+	}
+
 	if (post == undefined) {
 		return;
 	}

@@ -1,12 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	images: { domains: ["cdn.discordapp.com", "media.discordapp.net"] },
-	env: {
-		NEXT_PUBLIC_DISCORD_ID: process.env.NEXT_PUBLIC_DISCORD_ID,
-		NEXT_PUBLIC_DISCORD_SECRET: process.env.NEXT_PUBLIC_DISCORD_SECRET,
-		NEXT_PUBLIC_DB_URI: process.env.NEXT_PUBLIC_DB_URI,
-		NEXT_PUBLIC_SECRET: process.env.NEXT_PUBLIC_SECRET,
-	},
 	async headers() {
 		return [
 			{
