@@ -1,4 +1,4 @@
-import { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 
 if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET) {
@@ -34,7 +34,7 @@ export const authOptions: NextAuthOptions = {
 			if (session) {
 				session = Object.assign({}, session, {
 					access_token: token.access_token,
-					user_id: token.user_id,
+					user_id: (token as any).user_id,
 				});
 			}
 			return session;
