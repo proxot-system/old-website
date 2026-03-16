@@ -37,7 +37,7 @@ export default function Page() {
         setCurrentWindow(() => {
           return (
             <Window title="???" className="">
-              <p className="text-xl text-black mb-2">You found this website.</p>
+              <p className="text-xl text-black mb-2">You got to this place.</p>
               <button
                 className="mx-auto position-relative text-lg"
                 onClick={() => {
@@ -72,7 +72,7 @@ export default function Page() {
           return (
             <Window title="???" className="">
               <p className="text-xl text-black mb-2">
-                You're already too late. This Discord bot is just like the
+                You're already too late. This World is just like the
                 others.
               </p>
               <button
@@ -92,7 +92,7 @@ export default function Page() {
           return (
             <Window title="???" className="">
               <p className="text-xl text-black mb-2">
-                This will be apparent when you see some of the commands.
+                This will be apparent when you see some of the characters.
               </p>
               <button
                 className="mx-auto position-relative text-lg"
@@ -111,7 +111,7 @@ export default function Page() {
           return (
             <Window title="???" className="">
               <p className="text-xl text-black mb-2">
-                This bot was never worth your time.
+                This place was never worth your time.
               </p>
               <button
                 className="mx-auto position-relative text-lg"
@@ -130,7 +130,7 @@ export default function Page() {
           return (
             <Window title="???" className="">
               <p className="text-xl text-black mb-2">
-                Do you still want to invite me?
+                Do you still want to get in?
               </p>
               <button
                 className="mx-auto position-relative text-lg"
