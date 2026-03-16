@@ -21,8 +21,8 @@ export default function Invite() {
       <Window title="Invite" className="max-w-[800px]">
         <div className="flex justify-center flex-col font-main my-10 mx-10">
           <p className="text-center text-lg text-black mb-5">
-            You want to interact with The World Machine through Proxot? That's great! Here's a few
-            things you'll be able to do, and a shiny button to do the deed.
+            You want to interact with The World Machine through Proxot? That's great! You can do that using their Discord bot profile, here's a few
+            things you'll also be able to do, and a shiny button to do the deed.
           </p>
           <button
             onClick={handleClick}
