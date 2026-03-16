@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import Draggable from "react-draggable";
 
 interface WindowProps {
@@ -7,9 +8,14 @@ interface WindowProps {
 }
 
 export default function Window({ title, children, className }: WindowProps) {
+	const nodeRef = useRef(null);
+
 	return (
-		<Draggable handle=".title-bar" bounds=".desktop">
-			<div className="window absolute top-2 left-1 z-10 sm:top-5 sm:left-1/4 sm:-translate-x-1/2">
+		<Draggable nodeRef={nodeRef} handle=".title-bar" bounds=".desktop">
+			<div 
+				ref={nodeRef} 
+				className="window absolute top-2 left-1 z-10 sm:top-5 sm:left-1/4 sm:-translate-x-1/2"
+			>
 				<div className="title-bar">
 					<div className="title-bar-text">{title}</div>
 					<div className="title-bar-controls">

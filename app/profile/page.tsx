@@ -31,9 +31,16 @@ export default function Profile() {
   const [textLength, setTextLength] = useState<number>(0);
   const [checked, setChecked] = useState(false);
 
-  // saving changes
   const [saveStatus, setSaveStatus] = useState("...");
   const [saved, setSaved] = useState(true);
+
+  const { data: discordData, status } = useSession();
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      signIn("discord");
+    }
+  }, [status]);
 
   function PageStatus(status: string) {
     if (status === "authenticating") {
@@ -73,13 +80,9 @@ export default function Profile() {
     } else if (status === "unauthenticated") {
       return (
         <Desktop>
-          <Window title="Error!" className="grid justify-center items-center">
+          <Window title="Redirecting..." className="grid justify-center items-center">
             <div className="text-xl text-black text-center">
-              You need to be signed in to Discord to access this page!
-            </div>
-            <div className="mx-auto mt-5 scale-120">
-              <button onClick={() => signIn("discord")}>Sign In</button>{" "}
-              <button onClick={() => (window.location.href = "/")}>Okay</button>
+              Session expired. Redirecting to login...
             </div>
           </Window>
         </Desktop>
@@ -194,15 +197,13 @@ export default function Profile() {
     );
   }
 
-  const { data: discordData, status } = useSession();
-
   useEffect(() => {
     const fetchItems = async () => {
       const data = await FetchItemData();
 
       if (!data) {
         console.error("For some reason data was never fetched.");
-        setPageStatus("error"); // Run error scenario if data doesn't exist... for whatever reason.
+        setPageStatus("error");
         return;
       }
 
@@ -216,7 +217,7 @@ export default function Profile() {
     const login = async () => {
       if (pageStatus === "success") {
         return;
-      } // We don't need to get discord data when page is successfully loaded.
+      }
 
       if (status === "loading") {
         setPageStatus("loading");
@@ -227,14 +228,13 @@ export default function Profile() {
 
       try {
         if (!discordData) {
-          // If discordData is null, then user has not signed in to the website.
           setPageStatus("unauthenticated");
           return;
         }
 
         if (!discordData?.access_token) {
           return;
-        } // If there's no access token then we don't need to do anything yet.
+        }
 
         const data = await DiscordLogIn(discordData);
 
@@ -254,29 +254,33 @@ export default function Profile() {
         setPageStatus("success");
       } catch (error) {
         console.error("Error fetching data from discord:", error);
-        setPageStatus("error");
+        setPageStatus("unauthenticated");
       }
     };
 
     login();
-  }, [discordData]);
+  }, [discordData, status]);
 
   useEffect(() => {
     const updateData = async () => {
       if (!saveToDatabase) {
         return;
       }
-      if (!userToUpdate) {
+      if (!userData) {
         return;
       }
 
-      await updateToDatabase(userToUpdate);
+      try {
+        await updateToDatabase(userData);
+      } catch (e) {
+        signIn("discord");
+      }
 
       setSaveToDatabase(false);
     };
 
     updateData();
-  }, [saveToDatabase, userToUpdate]);
+  }, [saveToDatabase]);
 
   if (pageStatus === "success") {
     return Page();

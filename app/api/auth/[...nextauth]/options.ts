@@ -1,11 +1,15 @@
 import { NextAuthOptions } from "next-auth";
 import DiscordProvider from "next-auth/providers/discord";
 
+if (!process.env.DISCORD_CLIENT_ID || !process.env.DISCORD_CLIENT_SECRET) {
+	console.error("CRITICAL ERROR: Discord OAuth credentials are missing in environment variables.");
+}
+
 export const authOptions: NextAuthOptions = {
 	providers: [
 		DiscordProvider({
-			clientId: process.env.DISCORD_CLIENT_ID as string,
-			clientSecret: process.env.DISCORD_CLIENT_SECRET as string,
+			clientId: process.env.DISCORD_CLIENT_ID ?? "",
+			clientSecret: process.env.DISCORD_CLIENT_SECRET ?? "",
 			authorization: {
 				params: {
 					scope: "identify",
@@ -14,14 +18,13 @@ export const authOptions: NextAuthOptions = {
 		}),
 	],
 
-	secret: process.env.NEXTAUTH_SECRET as string,
+	secret: process.env.NEXTAUTH_SECRET,
 
 	callbacks: {
 		async jwt({ token, account }) {
 			if (account) {
 				token = Object.assign({}, token, {
 					access_token: account.access_token,
-					// Store the Discord ID on the secure server token
 					user_id: account.providerAccountId, 
 				});
 			}

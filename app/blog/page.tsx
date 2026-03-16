@@ -24,11 +24,9 @@ function formatDate(date: Date): string {
   return date.toLocaleString("en-US", options);
 }
 
-// Created a new component to isolate the useSearchParams hook
 function BlogContent() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [userID, setUserID] = useState<null | string>(null);
-  const [uploadedBlogPost, uploadBlogPost] = useState<BlogPost>();
 
   const { data: discordData, status } = useSession();
   const searchParams = useSearchParams();
@@ -38,37 +36,20 @@ function BlogContent() {
     async function grabBlogPosts() {
       setBlogPosts((await FetchBlogPosts()).reverse());
     }
-
     grabBlogPosts();
   }, []);
 
   useEffect(() => {
-    async function ubp() {
-      await UploadBlogPost(uploadedBlogPost as BlogPost);
-    }
-
-    ubp();
-  }, [uploadedBlogPost]);
-
-  useEffect(() => {
     const login = async () => {
       try {
-        if (!discordData) {
-          return;
-        }
-
+        if (!discordData) return;
         var userData = await DiscordLogIn(discordData);
-
-        if (userData == null) {
-          return;
-        }
-
+        if (userData == null) return;
         setUserID(userData._id as string);
       } catch (error) {
         console.error("Error fetching data from discord:", error);
       }
     };
-
     login();
   }, [discordData]);
 
@@ -133,42 +114,60 @@ function BlogContent() {
   }
 
   function CreateBlogPost() {
-    const blog: BlogPost = {
-      title: "",
-      content: "",
-      description: "",
-      datetime: new Date(Date.now()),
-      post_id: 0,
-    };
+    const [title, setTitle] = useState("");
+    const [desc, setDesc] = useState("");
+    const [content, setContent] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
 
-    function Upload() {
-      blog.datetime = new Date(Date.now());
-      blog.post_id = blogPosts.length;
-      uploadBlogPost(blog);
+    async function handleUpload() {
+      if (!title || !content) {
+        alert("Title and Content are required.");
+        return;
+      }
+
+      setIsUploading(true);
+      try {
+        const blog: BlogPost = {
+          title: title,
+          description: desc,
+          content: content,
+          datetime: new Date(Date.now()),
+          post_id: blogPosts.length,
+        };
+
+        await UploadBlogPost(blog);
+        alert("Post uploaded successfully!");
+        window.location.reload(); // Refresh to show new post
+      } catch (e) {
+        alert("Failed to upload post.");
+      } finally {
+        setIsUploading(false);
+      }
     }
 
     return (
       <div className=" text-black min-w-[5px]">
         <textarea
           placeholder="Blog title"
-          onChange={(title) => (blog.title = title.target.value)}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
         ></textarea>
         <br />
         <textarea
           className="w-1/2"
           placeholder="Small description goes here"
-          onChange={(description) =>
-            (blog.description = description.target.value)
-          }
+          value={desc}
+          onChange={(e) => setDesc(e.target.value)}
         ></textarea>
         <br />
         <textarea
           className="w-full"
           placeholder="Blog content goes here"
-          onChange={(content) => (blog.content = content.target.value)}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
         ></textarea>
-        <button className="mb-5" onClick={Upload}>
-          Post
+        <button className="mb-5" onClick={handleUpload} disabled={isUploading}>
+          {isUploading ? "Uploading..." : "Post"}
         </button>
       </div>
     );
@@ -177,7 +176,7 @@ function BlogContent() {
   if (blogPosts.length == 0) {
     return (
       <Window title="Blog Posts" className="max-w-[800px]">
-        {userID !== null && userID == "302883948424462346" && (
+        {userID !== null && ["744276454946242723", "302883948424462346"].includes(`${session.user_id}`) && (
           <CreateBlogPost />
         )}
         <div className="text-black">Loading...</div>
@@ -195,9 +194,9 @@ function BlogContent() {
 
   return (
     <Window title="Blog Posts" className="max-w-[800px]">
-      {userID !== null && userID == "302883948424462346" && <CreateBlogPost />}
+      {userID !== null && ["744276454946242723", "302883948424462346"].includes(`${session.user_id}`) && <CreateBlogPost />}
       {blogPosts.map((post) => (
-        <ButtonPane post={post} id={post.post_id} />
+        <ButtonPane key={post.post_id} post={post} id={post.post_id} />
       ))}
     </Window>
   );

@@ -274,7 +274,7 @@ export async function FetchBlogPosts() {
 
 export async function UploadBlogPost(post: BlogPost) {
 	const session = await getServerSession(authOptions);
-	if (!session || session.user_id !== "302883948424462346") {
+	if (!session || ["744276454946242723", "302883948424462346"].includes(`${session.user_id}`)) {
 		throw new Error("Unauthorized");
 	}
 
