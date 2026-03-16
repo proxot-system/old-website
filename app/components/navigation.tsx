@@ -18,7 +18,7 @@ export default function Navigation() {
         icon_name="Leader boards"
         redirect="/leaderboards"
       />
-      <DesktopIcon filename="blog" icon_name="Blog" redirect="/blog" />
+      {/*<DesktopIcon filename="blog" icon_name="Blog" redirect="/blog" />*/}
       <DesktopIcon filename="credits" icon_name="Credits" redirect="/credits" />
       <DesktopIcon
         filename="../discord-icon"
