@@ -1,21 +1,20 @@
 "use server";
-import axios, { all, AxiosError } from "axios";
-import { Collection, MongoClient, ObjectId } from "mongodb";
+import axios from "axios";
+import { type Collection, MongoClient } from "mongodb";
 import { getServerSession } from "next-auth/next";
+import pLimit from "p-limit";
 import { authOptions } from "./api/auth/[...nextauth]/options";
 import {
+	type BlogPost,
+	type ItemData,
+	type LeaderboardUser,
+	type NikogotchiData,
 	UserData,
-	LeaderboardUser,
-	ItemData,
-	NikogotchiInformation,
-	NikogotchiData,
-	BlogPost,
 } from "./components/database-parse-type";
-import pLimit from "p-limit";
 
 const limit = pLimit(3);
 
-let collection: null | Collection<any> = null;
+const collection: null | Collection<any> = null;
 
 const uri = process.env.DB_URI as string;
 const dbClient: MongoClient = new MongoClient(uri);
@@ -55,7 +54,20 @@ export async function Fetch(user: string): Promise<UserData | null> {
 	const safeUserId = String(user);
 
 	const user_data_collection = await getCollection("UserData");
-	const userDataFromDB = await user_data_collection.findOne({ _id: safeUserId });
+
+	const userDataFromDB = await user_data_collection.findOne(
+		{ _id: safeUserId },
+		{
+			projection: {
+				_id: 1,
+				profile_description: 1,
+				equipped_bg: 1,
+				owned_backgrounds: 1,
+				badge_notifications: 1,
+				translation_language: 1,
+			},
+		},
+	);
 
 	if (userDataFromDB) {
 		return userDataFromDB;
@@ -78,7 +90,9 @@ export async function GetNikogotchiData(
 	const safeUserId = String(user);
 
 	const user_data_collection = await getCollection("UserNikogotchis");
-	const userDataFromDB = await user_data_collection.findOne({ _id: safeUserId });
+	const userDataFromDB = await user_data_collection.findOne({
+		_id: safeUserId,
+	});
 
 	if (userDataFromDB) {
 		return userDataFromDB as unknown as NikogotchiData;
@@ -93,12 +107,9 @@ export async function Update(user: Partial<UserData>) {
 		throw new Error("Unauthorized");
 	}
 
-	// Trust the ID from the server session instead of the client's payload.
 	const safeUserId = String(session.user_id);
 	const user_data_collection = await getCollection("UserData");
 
-	// VULNERABILITY FIX: Define a strict, server-side allowlist of modifiable fields.
-	// This prevents clients from modifying protected fields like 'wool' or 'suns'.
 	const ALLOWED_FIELDS = [
 		"equipped_bg",
 		"badge_notifications",
@@ -108,14 +119,21 @@ export async function Update(user: Partial<UserData>) {
 
 	const filteredData: { [key: string]: any } = {};
 
-	// Iterate over the secure allowlist, not client-provided data.
 	ALLOWED_FIELDS.forEach((field) => {
 		if (user[field as keyof UserData] !== undefined) {
 			filteredData[field as keyof UserData] = user[field as keyof UserData];
 		}
 	});
 
-	// Prevent sending an empty update to the database.
+	if (filteredData.profile_description !== undefined) {
+		if (typeof filteredData.profile_description !== "string") {
+			delete filteredData.profile_description;
+		} else if (filteredData.profile_description.length > 250) {
+			filteredData.profile_description =
+				filteredData.profile_description.substring(0, 250);
+		}
+	}
+
 	if (Object.keys(filteredData).length === 0) {
 		console.log("No valid fields to update.");
 		return;
@@ -128,10 +146,9 @@ export async function Update(user: Partial<UserData>) {
 		);
 		console.log(result.matchedCount);
 	} catch (error) {
-		console.error("Error updating database: " + error);
+		console.error(`Error updating database: ${error}`);
 	}
 }
-
 
 export async function GetLeaderboard(sortBy: string) {
 	const allowedSortFields = [
@@ -274,19 +291,20 @@ export async function FetchBlogPosts() {
 
 export async function UploadBlogPost(post: BlogPost) {
 	const session = await getServerSession(authOptions);
-	if (!session || ["744276454946242723", "302883948424462346"].includes(`${session.user_id}`)) {
+	if (
+		!session ||
+		["744276454946242723", "302883948424462346"].includes(`${session.user_id}`)
+	) {
 		throw new Error("Unauthorized");
 	}
 
-	if (post == undefined) {
-		return;
-	}
+	if (!post) return;
 
 	const blogData = await getCollection("Blog");
 
 	const result = await blogData.insertOne(post);
 
-	if (result && result.insertedId) {
+	if (result?.insertedId) {
 		console.log(`New post created with the following id: ${result.insertedId}`);
 	} else {
 		console.error("Failed to insert the blog post.");
