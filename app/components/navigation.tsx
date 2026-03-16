@@ -28,7 +28,7 @@ export default function Navigation() {
       <DesktopIcon
         filename="sun"
         icon_name="Buy OneShot"
-        redirect="https://store.steampowered.com/app/420530/OneShot/"
+        redirect="https://store.steampowered.com/app/2915460/"
       />
     </div>
   );
