@@ -50,9 +50,14 @@ async function getCollection(name: string) {
 
 export async function Fetch(user: string): Promise<UserData | null> {
 	const session = await getServerSession(authOptions);
-	if (!session?.user_id || session.user_id !== user) {
+	if (!session?.user_id) {
+		throw new Error("AUTH_REQUIRED");
+	}
+
+	if (session.user_id !== user) {
 		throw new Error("Unauthorized");
 	}
+
 
 	if (!user) return null;
 	const safeUserId = String(user);
@@ -87,7 +92,7 @@ export async function GetNikogotchiData(
 ): Promise<NikogotchiData | null> {
 	const session = await getServerSession(authOptions);
 	if (!session?.user_id || session.user_id !== user) {
-		throw new Error("Unauthorized");
+		throw new Error("AUTH_REQUIRED");
 	}
 
 	if (!user) return null;
@@ -108,7 +113,7 @@ export async function GetNikogotchiData(
 export async function Update(user: Partial<UserData>) {
 	const session = await getServerSession(authOptions);
 	if (!session || !session.user_id) {
-		throw new Error("Unauthorized");
+		throw new Error("AUTH_REQUIRED");
 	}
 
 	const safeUserId = String(session.user_id);

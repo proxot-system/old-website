@@ -1,7 +1,7 @@
 "use client";
 import Head from "next/head";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { Suspense, useEffect, useState } from "react"; // Added Suspense import
 import type { BlogPost } from "../components/database-parse-type";
 import Desktop from "../components/desktop";
@@ -43,8 +43,14 @@ function BlogContent() {
 				var userData = await DiscordLogIn(discordData);
 				if (userData == null) return;
 				setUserID(userData._id as string);
-			} catch (error) {
-				console.error("Error fetching data from discord:", error);
+			} catch (error: any) {
+				if (error.message === "AUTH_REQUIRED") {
+					console.warn("Session is invalid, triggering re-authentication.");
+					await signOut({ redirect: false });
+					signIn("discord");
+				} else {
+					console.error("Error fetching data from discord:", error);
+				}
 			}
 		};
 		login();

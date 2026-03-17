@@ -1,6 +1,6 @@
 "use client";
 
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { type ChangeEvent, useEffect, useState } from "react";
 import type { ItemData, UserData } from "../components/database-parse-type";
 import Desktop from "../components/desktop";
@@ -247,9 +247,15 @@ export default function Profile() {
 				setUserToUpdate({ ...data } as UserData);
 
 				setPageStatus("success");
-			} catch (error) {
-				console.error("Error fetching data from discord:", error);
-				setPageStatus("unauthenticated");
+			} catch (error: any) {
+				if (error.message === "AUTH_REQUIRED") {
+					console.warn("Session is invalid, triggering re-authentication.");
+					await signOut({ redirect: false });
+					signIn("discord");
+				} else {
+					console.error("Error fetching data from discord:", error);
+					setPageStatus("error");
+				}
 			}
 		};
 
@@ -267,8 +273,11 @@ export default function Profile() {
 
 			try {
 				await updateToDatabase(userData);
-			} catch (e) {
-				signIn("discord");
+			} catch (e: any) {
+				if (e.message === "AUTH_REQUIRED") {
+					await signOut({ redirect: false });
+					signIn("discord");
+				}
 			}
 
 			setSaveToDatabase(false);

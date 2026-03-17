@@ -29,19 +29,15 @@ export const authOptions: NextAuthOptions = {
 	callbacks: {
 		async jwt({ token, account }) {
 			if (account) {
-				token = Object.assign({}, token, {
-					access_token: account.access_token,
-					user_id: account.providerAccountId, 
-				});
+				token.access_token = account.access_token;
+				token.user_id = account.providerAccountId;
 			}
 			return token;
 		},
 		async session({ session, token }) {
-			if (session) {
-				session = Object.assign({}, session, {
-					access_token: token.access_token,
-					user_id: (token as any).user_id,
-				});
+			if (session && token) {
+				(session as any).access_token = token.access_token;
+				(session as any).user_id = token.user_id;
 			}
 			return session;
 		},
