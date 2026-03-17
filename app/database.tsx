@@ -50,14 +50,11 @@ async function getCollection(name: string) {
 
 export async function Fetch(user: string): Promise<UserData | null> {
 	const session = await getServerSession(authOptions);
-	if (!session?.user_id) {
-		throw new Error("AUTH_REQUIRED");
+	// If session is invalid or doesn't match, return null instead of throwing
+	if (!session?.user_id || session.user_id !== user) {
+		console.warn(`Authentication check failed for user: ${user}. Session user: ${session?.user_id}`);
+		return null;
 	}
-
-	if (session.user_id !== user) {
-		throw new Error("Unauthorized");
-	}
-
 
 	if (!user) return null;
 	const safeUserId = String(user);
@@ -92,7 +89,7 @@ export async function GetNikogotchiData(
 ): Promise<NikogotchiData | null> {
 	const session = await getServerSession(authOptions);
 	if (!session?.user_id || session.user_id !== user) {
-		throw new Error("AUTH_REQUIRED");
+		return null;
 	}
 
 	if (!user) return null;
@@ -113,7 +110,8 @@ export async function GetNikogotchiData(
 export async function Update(user: Partial<UserData>) {
 	const session = await getServerSession(authOptions);
 	if (!session || !session.user_id) {
-		throw new Error("AUTH_REQUIRED");
+		console.error("Update failed: User is not authenticated.");
+		return;
 	}
 
 	const safeUserId = String(session.user_id);

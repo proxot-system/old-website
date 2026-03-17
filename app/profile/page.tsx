@@ -219,27 +219,30 @@ export default function Profile() {
 				return;
 			}
 
+			if (status === "unauthenticated") {
+				signIn("discord");
+				return;
+			}
+
 			setPageStatus("authenticating");
 
 			try {
-				if (!discordData) {
-					setPageStatus("unauthenticated");
-					return;
-				}
-
-				if (!discordData?.access_token) {
+				if (!discordData || !discordData.access_token) {
 					return;
 				}
 
 				const data = await DiscordLogIn(discordData);
 
-				if (data == null) {
-					setPageStatus("error");
+				if (data === null) {
+					console.warn(
+						"Received null user data, session is likely invalid. Resetting session.",
+					);
+					await signOut({ redirect: false });
+					signIn("discord");
 					return;
 				}
 
 				setUserData(data);
-
 				setPageStatus("authenticated");
 
 				setTextLength(data.profile_description.length);
@@ -247,15 +250,9 @@ export default function Profile() {
 				setUserToUpdate({ ...data } as UserData);
 
 				setPageStatus("success");
-			} catch (error: any) {
-				if (error.message === "AUTH_REQUIRED") {
-					console.warn("Session is invalid, triggering re-authentication.");
-					await signOut({ redirect: false });
-					signIn("discord");
-				} else {
-					console.error("Error fetching data from discord:", error);
-					setPageStatus("error");
-				}
+			} catch (error) {
+				console.error("An unexpected error occurred during login:", error);
+				setPageStatus("error");
 			}
 		};
 
@@ -273,11 +270,9 @@ export default function Profile() {
 
 			try {
 				await updateToDatabase(userData);
-			} catch (e: any) {
-				if (e.message === "AUTH_REQUIRED") {
-					await signOut({ redirect: false });
-					signIn("discord");
-				}
+			} catch (e) {
+				console.error("Update failed, attempting re-auth", e);
+				signIn("discord");
 			}
 
 			setSaveToDatabase(false);
@@ -286,7 +281,7 @@ export default function Profile() {
 		updateData();
 	}, [saveToDatabase]);
 
-	if (pageStatus === "success") {
+	if (pageStatus === "success" && userToUpdate) {
 		return Page();
 	} else {
 		return PageStatus(pageStatus);
