@@ -117,28 +117,45 @@ export async function Update(user: Partial<UserData>) {
 	const safeUserId = String(session.user_id);
 	const user_data_collection = await getCollection("UserData");
 
-	const ALLOWED_FIELDS = [
-		"equipped_bg",
-		"badge_notifications",
-		"profile_description",
-		"translation_language",
-	];
-
 	const filteredData: { [key: string]: any } = {};
 
-	ALLOWED_FIELDS.forEach((field) => {
-		if (user[field as keyof UserData] !== undefined) {
-			filteredData[field as keyof UserData] = user[field as keyof UserData];
-		}
-	});
+	// Validate and filter incoming data
+	if (user.equipped_bg !== undefined && typeof user.equipped_bg === "string") {
+		filteredData.equipped_bg = user.equipped_bg;
+	}
 
-	if (filteredData.profile_description !== undefined) {
-		if (typeof filteredData.profile_description !== "string") {
-			delete filteredData.profile_description;
-		} else if (filteredData.profile_description.length > 250) {
-			filteredData.profile_description =
-				filteredData.profile_description.substring(0, 250);
+	if (
+		user.badge_notifications !== undefined &&
+		typeof user.badge_notifications === "boolean"
+	) {
+		filteredData.badge_notifications = user.badge_notifications;
+	}
+
+	if (
+		user.translation_language !== undefined &&
+		typeof user.translation_language === "string"
+	) {
+		filteredData.translation_language = user.translation_language;
+	}
+
+	if (
+		user.profile_description !== undefined &&
+		typeof user.profile_description === "string"
+	) {
+		let desc = user.profile_description;
+
+		// Limit to 250 chars
+		if (desc.length > 250) {
+			desc = desc.substring(0, 250);
 		}
+
+		// Limit to 10 line breaks (which results in 11 lines)
+		const lines = desc.split("\n");
+		if (lines.length > 11) {
+			desc = lines.slice(0, 11).join("\n");
+		}
+
+		filteredData.profile_description = desc;
 	}
 
 	if (Object.keys(filteredData).length === 0) {
