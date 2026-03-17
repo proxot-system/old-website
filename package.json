@@ -9,9 +9,9 @@
 	"private": true,
 	"scripts": {
 		"dev": "bun --bun next dev -p 9077",
-		"build": "bun --bun next build",
-		"start": "bun --bun next start -p 9077",
-		"lint": "bun --bun next lint"
+		"build": "echo '' | bun --bun next build",
+		"start": "echo '' | bun --bun next start -p 9077",
+		"lint": "echo '' | bun --bun next lint"
 	},
 	"dependencies": {
 		"98.css": "^0.1.21",
