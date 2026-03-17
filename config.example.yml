@@ -1,0 +1,14 @@
+database:
+  connection: # mongodb+srv://{username}:{password}@{host}
+    username: "meqativ"
+    password: "password"
+    host: "localhost" # domain name / ip / localhost
+    port: 27017
+
+discord:
+  client_secret: "wdr32NpMdRY3-7NiMJuS9G1JZeRd8_qo" # application settings -> OAuth2
+  token: "MTE2OTM3ODA2OTgzNzAwOTA3Nw.ZyvkfCu.M583_yARkLzqS97fXeWIPFT5xpC" # replace with yours
+
+nextauth:
+  secret: "hello world" # password to encrypt the session with
+  url: "https://theworldmachine.xyz" # the root url of the website this will be running on (e.g. https://theworldmachine.xyz)

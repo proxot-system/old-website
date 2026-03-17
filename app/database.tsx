@@ -4,6 +4,7 @@ import { type Collection, MongoClient } from "mongodb";
 import { getServerSession } from "next-auth/next";
 import pLimit from "p-limit";
 import { authOptions } from "./api/auth/[...nextauth]/options";
+import { config } from "./lib/config"; // Ensure this path is correct
 import {
 	type BlogPost,
 	type ItemData,
@@ -13,12 +14,15 @@ import {
 } from "./components/database-parse-type";
 
 const limit = pLimit(3);
-
 const collection: null | Collection<any> = null;
 
-const uri = process.env.DB_URI as string;
+const dbCfg = config.database.connection;
+const username = encodeURIComponent(dbCfg.username);
+const password = encodeURIComponent(dbCfg.password);
+const uri = `mongodb://${username}:${password}@${dbCfg.host}:${dbCfg.port}/TheWorldMachine?authSource=admin`;
 const dbClient: MongoClient = new MongoClient(uri);
 dbClient.connect();
+
 
 async function isConnected(client: MongoClient) {
 	if (!client) {
@@ -242,7 +246,7 @@ export async function GetDiscordData(userID: string) {
 				`https://discord.com/api/users/${safeUserId}`,
 				{
 					headers: {
-						Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+						Authorization: `Bot ${config.discord.token}`,
 					},
 				},
 			);

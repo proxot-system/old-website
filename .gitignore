@@ -37,4 +37,7 @@ next-env.d.ts
 
 *.env
 
-twm-config.json
+# config
+config.yml
+.env
+.env.local
