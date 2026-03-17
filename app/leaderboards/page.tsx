@@ -107,14 +107,7 @@ function Page(
 				<div className="mt-2" />
 				{AssignToLeaderboard("suns", suns)}
 				<div className="mt-5" />
-
-				<Header>
-					<p className="text-xl mr-2">Wool</p> <img src={icons.wool_icon} />
-				</Header>
-				<div className="mt-2" />
-				{AssignToLeaderboard("wool", wool)}
-				<div className="mt-5" />
-
+				
 				<Header>
 					<p className="text-xl mr-2">Times Shattered</p>{" "}
 					<img src={icons.explode_icon} />
@@ -129,6 +122,13 @@ function Page(
 				</Header>
 				<div className="mt-2" />
 				{AssignToLeaderboard("times_transmitted", times_transmitted)}
+				<div className="mt-5" />
+
+				<Header>
+					<p className="text-xl mr-2">Wool</p> <img src={icons.wool_icon} />
+				</Header>
+				<div className="mt-2" />
+				{AssignToLeaderboard("wool", wool)}
 				<div className="mt-5" />
 			</Window>
 		</Desktop>
