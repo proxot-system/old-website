@@ -26,9 +26,9 @@ export default function Invite() {
           </p>
           <button
             onClick={handleClick}
-            className="flex justify-between text-black w-[200px] mx-auto h-16 mb-10"
+            className="flex justify-between text-black mx-auto h-16 mb-10"
           >
-            <h1 className="mr-2 text-2xl my-auto">Add Now</h1>
+            <h1 className="text-center text-2xl my-auto">Add Now</h1>
           </button>
 
           <CommandPanel
