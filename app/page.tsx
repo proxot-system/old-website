@@ -13,7 +13,6 @@ const introMessages = [
 	"This place was never worth your time.",
 	"Do you still want to get in?",
 	"Very well. Then remember this.",
-	"You only have one shot, user.",
 ];
 
 export default function Page() {
@@ -28,8 +27,11 @@ export default function Page() {
 
 	const handleNext = () => {
 		if (index >= introMessages.length - 1) {
-			Cookies.set("seen_intro", "true");
 			setCompleted(true);
+			Cookies.set("seen_intro", "true");
+			setTimeout(() => {
+				alert("You only have one shot, user.");
+			}, 30);
 		} else {
 			setIndex((prev) => prev + 1);
 		}
@@ -39,33 +41,22 @@ export default function Page() {
 		return <Desktop>{null}</Desktop>;
 	}
 
-	const isLast = index === introMessages.length - 1;
-
 	return (
 		<Desktop>
 			<Window
-				title="The World Machine"
-				className="sm:w-[420px]"
+				title="???"
+				className="sm:w-[380px]"
 			>
-				<div className="p-3">
-					<div className="flex items-start gap-4 mb-6">
-						<img
-							src="/icon.png"
-							alt="Notice"
-							width={36}
-							height={36}
-							className="h-9 w-9 flex-shrink-0 mt-1 object-contain select-none"
-						/>
-						<p className="text-base text-black font-main leading-relaxed select-none">
-							{introMessages[index]}
-						</p>
-					</div>
+				<div className="p-3 text-center">
+					<p className="text-base text-black font-main leading-relaxed mb-5 select-none">
+						{introMessages[index]}
+					</p>
 					<div className="flex justify-center">
 						<button
 							onClick={handleNext}
-							className="px-6 py-1 text-base font-bold min-w-[90px]"
+							className="px-6 py-1 text-base font-bold min-w-[80px]"
 						>
-							{isLast ? "OK" : "Next"}
+							Ok
 						</button>
 					</div>
 				</div>

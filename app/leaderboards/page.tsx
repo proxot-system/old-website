@@ -23,22 +23,30 @@ function TWMTable({ children }: { children: React.ReactNode }) {
 	return <div className="flex justify-center w-full">{children}</div>;
 }
 
-function TableColumn({ children }: { children: React.ReactNode }) {
-	return <div className="grid flex-1">{children}</div>;
+function TableNumberColumn({ children }: { children: React.ReactNode }) {
+	return <div className="flex flex-col w-10 sm:w-11 flex-shrink-0">{children}</div>;
+}
+
+function TableUserColumn({ children }: { children: React.ReactNode }) {
+	return <div className="flex flex-col flex-1 min-w-0">{children}</div>;
+}
+
+function TableAmountColumn({ children }: { children: React.ReactNode }) {
+	return <div className="flex flex-col w-28 sm:w-32 flex-shrink-0">{children}</div>;
 }
 
 function TableHeader({ name }: { name: string }) {
 	return (
-		<div className="window text-center text-black min-w-[5px]">
-			<p className="text-base font-bold mx-2 py-0.5">{name}</p>
+		<div className="window text-center text-black flex items-center justify-center h-9 box-border">
+			<p className="text-base font-bold truncate px-1">{name}</p>
 		</div>
 	);
 }
 
-function TableItem({ item }: { item: string }) {
+function TableItem({ item, className = "" }: { item: string; className?: string }) {
 	return (
-		<div className="flex justify-center bg-white text-black px-3 py-1 border border-gray-400">
-			<p className="text-base mx-2">{item}</p>
+		<div className={`flex items-center justify-center bg-white text-black px-2 h-9 border border-gray-400 box-border ${className}`}>
+			<p className="text-base truncate">{item}</p>
 		</div>
 	);
 }
@@ -142,36 +150,36 @@ function AssignToLeaderboard(
 	if (leaderboard.length === 0) {
 		return (
 			<TWMTable>
-				<TableColumn>
+				<TableNumberColumn>
 					<TableHeader name="#" />
 					<TableItem item="1." />
-				</TableColumn>
-				<TableColumn>
+				</TableNumberColumn>
+				<TableUserColumn>
 					<TableHeader name="User" />
 					<TableItem item="Loading..." />
-				</TableColumn>
-				<TableColumn>
+				</TableUserColumn>
+				<TableAmountColumn>
 					<TableHeader name="Amount" />
 					<TableItem item="Loading..." />
-				</TableColumn>
+				</TableAmountColumn>
 			</TWMTable>
 		);
 	} else {
 		return (
 			<TWMTable>
-				<TableColumn>
+				<TableNumberColumn>
 					<TableHeader name="#" />
-					{leaderboard.map((user, index) => (
+					{leaderboard.map((_user, index) => (
 						<TableItem item={`${index + 1}.`} key={index} />
 					))}
-				</TableColumn>
-				<TableColumn>
+				</TableNumberColumn>
+				<TableUserColumn>
 					<TableHeader name="User" />
 					{leaderboard.map((user, index) => (
-						<TableItem item={user.name} key={index} />
+						<TableItem item={user.name} key={index} className="truncate" />
 					))}
-				</TableColumn>
-				<TableColumn>
+				</TableUserColumn>
+				<TableAmountColumn>
 					<TableHeader name="Amount" />
 					{leaderboard.map((user, index) => {
 						const rawValue = (user.data as any)?.[type_name];
@@ -183,7 +191,7 @@ function AssignToLeaderboard(
 								: "0";
 						return <TableItem item={displayValue} key={index} />;
 					})}
-				</TableColumn>
+				</TableAmountColumn>
 			</TWMTable>
 		);
 	}

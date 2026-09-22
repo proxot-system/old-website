@@ -190,9 +190,10 @@ export async function GetLeaderboard(sortBy: string) {
 	const leaderboard: LeaderboardUser[] = [];
 
 	try {
+		// Fetch 30 candidates to guarantee 10 valid non-deleted users
 		const cursor = await user_data_collection.aggregate([
 			{ $sort: { [safeSortBy]: -1 } },
-			{ $limit: 15 },
+			{ $limit: 30 },
 			{ $project: { _id: 1, [safeSortBy]: 1, wool: 1 } },
 		]);
 		const result = await cursor.toArray();
@@ -201,7 +202,8 @@ export async function GetLeaderboard(sortBy: string) {
 			limit(async () => {
 				const username = await GetDiscordData(String(doc._id));
 				if (
-					username == "" ||
+					!username ||
+					username === "" ||
 					["twm", "the world machine", "proxot", "proxot system"].some((a) =>
 						username.toLowerCase().includes(a),
 					)
@@ -277,7 +279,16 @@ export async function GetDiscordData(userID: string) {
 				},
 			);
 
-			users[safeUserId] = response.data.username;
+			const data = response.data;
+
+			// Check Discord user flags: bit 34 (1<<34) = DELETED, bit 15 (1<<15) = UNDERAGE_DELETED
+			const flags = BigInt(data.flags ?? data.public_flags ?? 0);
+			if ((flags & (1n << 34n)) !== 0n || (flags & (1n << 15n)) !== 0n) {
+				users[safeUserId] = "";
+				return "";
+			}
+
+			users[safeUserId] = data.username;
 		} catch (e: any) {
 			if (e.response && e.response.status === 429) {
 				const retryAfter = Number(e.response.data?.retry_after ?? e.response.headers["retry-after"] ?? 1);
@@ -286,8 +297,8 @@ export async function GetDiscordData(userID: string) {
 				return await GetDiscordData(safeUserId);
 			}
 			if (e.response && e.response.status === 404) {
-				users[safeUserId] = `[Deleted User]`;
-				return users[safeUserId];
+				users[safeUserId] = "";
+				return "";
 			}
 			if (e.response && e.response.status === 401) {
 				tokenUnauthorized = true;
@@ -296,8 +307,8 @@ export async function GetDiscordData(userID: string) {
 				return users[safeUserId];
 			}
 			console.error(`Failed to fetch Discord user ${safeUserId}:`, e.message);
-			users[safeUserId] = `[Unknown User]`;
-			return users[safeUserId];
+			users[safeUserId] = "";
+			return "";
 		}
 	}
 
