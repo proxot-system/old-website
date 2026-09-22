@@ -1,6 +1,60 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+	--font-main: "TERMINUS", sans-serif;
+
+	--color-twm-logo-bg: #170B23;
+	--color-twm-logo-bg-light: #210142;
+	--color-twm-highlight: #9319FF;
+	--color-twm-sun: #FFEB4A;
+
+	--color-glens-dark: #031245;
+	--color-glens-light: #009A80;
+	--color-glens-highlight: #01F9EE;
+	--color-glens-accent: #003A95;
+
+	--color-refuge-dark: #4A0D30;
+	--color-refuge-light: #94143A;
+	--color-refuge-highlight: #D45EA9;
+
+	--background-image-twm: url('/background.png');
+	--background-image-glens-bg: url('/glens-background.png');
+}
+
+@layer base {
+	*, ::before, ::after {
+		box-sizing: border-box;
+	}
+	h1 {
+		font-size: 1.6rem;
+		font-weight: bold;
+	}
+	h2 {
+		font-size: 1.4rem;
+		font-weight: bold;
+	}
+	h3 {
+		font-size: 1.25rem;
+		font-weight: bold;
+	}
+	h4 {
+		font-size: 1.1rem;
+		font-weight: bold;
+	}
+	fieldset {
+		border: 2px groove #ffffff;
+		padding: 10px 12px;
+		margin-bottom: 12px;
+		min-width: 0;
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+	legend {
+		padding: 0 6px;
+		font-weight: bold;
+		font-size: 16px;
+	}
+}
 
 :root {
   --foreground-rgb: 0, 0, 0;
@@ -21,11 +75,21 @@
   src: url("/font/TerminusTTF-Bold.woff");
 }
 
-/**
- * 98.css
- * Copyright (c) 2020 Jordan Scales <thatjdanisso.cool>
- * https://github.com/jdan/98.css/blob/main/LICENSE
- */
+@font-face {
+  font-family: "Pixelated MS Sans Serif";
+  src: url("/font/TerminusTTF-Bold.woff") format("woff");
+  src: url("/font/TerminusTTF-Bold.woff") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Pixelated MS Sans Serif";
+  src: url("/font/TerminusTTF-Bold.woff") format("woff");
+  src: url("/font/TerminusTTF-Bold.woff") format("woff2");
+  font-weight: bold;
+  font-style: normal;
+}
 
 :root {
   /* Color */
@@ -42,20 +106,20 @@
   --link-blue: #0000ff;
 
   /* Spacing */
-  --element-spacing: 8px;
-  --grouped-button-spacing: 4px;
-  --grouped-element-spacing: 6px;
-  --radio-width: 12px;
-  --checkbox-width: 13px;
-  --radio-label-spacing: 6px;
+  --element-spacing: 10px;
+  --grouped-button-spacing: 6px;
+  --grouped-element-spacing: 8px;
+  --radio-width: 18px;
+  --checkbox-width: 18px;
+  --radio-label-spacing: 10px;
   --range-track-height: 4px;
-  --range-spacing: 10px;
+  --range-spacing: 12px;
 
-  /* Some detailed computations for radio buttons and checkboxes */
+  /* Detailed computations for radio buttons and checkboxes */
   --radio-total-width-precalc: var(--radio-width) + var(--radio-label-spacing);
   --radio-total-width: calc(var(--radio-total-width-precalc));
   --radio-left: calc(-1 * var(--radio-total-width-precalc));
-  --radio-dot-width: 4px;
+  --radio-dot-width: 6px;
   --radio-dot-top: calc(var(--radio-width) / 2 - var(--radio-dot-width) / 2);
   --radio-dot-left: calc(
     -1 * (var(--radio-total-width-precalc)) + var(--radio-width) / 2 -
@@ -66,9 +130,9 @@
     var(--radio-label-spacing);
   --checkbox-total-width: calc(var(--checkbox-total-width-precalc));
   --checkbox-left: calc(-1 * var(--checkbox-total-width-precalc));
-  --checkmark-width: 7px;
-  --checkmark-top: 3px;
-  --checkmark-left: 3px;
+  --checkmark-width: 9px;
+  --checkmark-top: 4px;
+  --checkmark-left: 4px;
 
   /* Borders */
   --border-width: 1px;
@@ -87,7 +151,7 @@
   --border-window-inner:
     inset -2px -2px var(--button-shadow), inset 2px 2px var(--button-highlight);
 
-  /* Field borders (checkbox, input, etc) flip window-frame and button-shadow */
+  /* Field borders flip window-frame and button-shadow */
   --border-field:
     inset -1px -1px var(--button-highlight), inset 1px 1px var(--button-shadow),
     inset -2px -2px var(--button-face), inset 2px 2px var(--window-frame);
@@ -98,25 +162,9 @@
     inset -2px 0 var(--button-shadow), inset 2px 2px var(--button-highlight);
 }
 
-@font-face {
-  font-family: "Pixelated MS Sans Serif";
-  src: url("/font/TerminusTTF-Bold.woff") format("woff");
-  src: url("/font/TerminusTTF-Bold.woff") format("woff2");
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Pixelated MS Sans Serif";
-  src: url("/font/TerminusTTF-Bold.woff") format("woff");
-  src: url("/font/TerminusTTF-Bold.woff") format("woff2");
-  font-weight: bold;
-  font-style: normal;
-}
-
 body {
-  font-family: Arial;
-  font-size: 12px;
+  font-family: "Pixelated MS Sans Serif", "TERMINUS", Arial, sans-serif;
+  font-size: 16px;
   color: var(--text-color);
 }
 
@@ -131,30 +179,9 @@ ul.tree-view,
 .window,
 .title-bar,
 li[role="tab"] {
-  font-family: "Pixelated MS Sans Serif", Arial;
+  font-family: "Pixelated MS Sans Serif", "TERMINUS", Arial, sans-serif;
   -webkit-font-smoothing: none;
-  font-size: 11px;
-}
-
-h1 {
-  font-size: 5rem;
-}
-
-h2 {
-  font-size: 2.5rem;
-}
-
-h3 {
-  font-size: 2rem;
-}
-
-h4 {
-  font-size: 1.5rem;
-}
-
-u {
-  text-decoration: none;
-  border-bottom: 0.5px solid #222222;
+  font-size: 16px;
 }
 
 button,
@@ -168,14 +195,14 @@ input[type="reset"] {
   box-shadow: var(--border-raised-outer), var(--border-raised-inner);
   border-radius: 0;
 
-  min-width: 75px;
-  min-height: 23px;
-  padding: 0 12px;
+  min-width: 85px;
+  min-height: 30px;
+  padding: 0 14px;
 }
 
 .vertical-bar {
   width: 4px;
-  height: 20px;
+  height: 24px;
   background: #c0c0c0;
   box-shadow: var(--border-raised-outer), var(--border-raised-inner);
 }
@@ -187,7 +214,7 @@ input[type="reset"]:not(:disabled):active {
   text-shadow: 1px 1px var(--text-color);
 }
 
-@media (not(hover)) {
+@media (hover: none) {
   button:not(:disabled):hover,
   input[type="submit"]:not(:disabled):hover,
   input[type="reset"]:not(:disabled):hover {
@@ -202,30 +229,10 @@ input[type="reset"]:focus {
   outline-offset: -4px;
 }
 
-button::-moz-focus-inner,
-input[type="submit"]::-moz-focus-inner,
-input[type="reset"]::-moz-focus-inner {
-  border: 0;
-}
-
-:disabled,
-:disabled + label,
-input[readonly],
-input[readonly] + label {
-  color: var(--button-shadow);
-}
-
-button:disabled,
-input[type="submit"]:disabled,
-input[type="reset"]:disabled,
-:disabled + label {
-  text-shadow: 1px 1px 0 var(--button-highlight);
-}
-
 .window {
   box-shadow: var(--border-window-outer), var(--border-window-inner);
   background: var(--surface);
-  padding: 3px;
+  padding: 4px;
 }
 
 .title-bar {
@@ -234,7 +241,7 @@ input[type="reset"]:disabled,
     var(--dialog-blue),
     var(--dialog-blue-light)
   );
-  padding: 3px 2px 3px 3px;
+  padding: 4px 6px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -253,6 +260,7 @@ input[type="reset"]:disabled,
   color: white;
   letter-spacing: 0;
   margin-right: 24px;
+  font-size: 16px;
 }
 
 .title-bar-controls {
@@ -261,9 +269,11 @@ input[type="reset"]:disabled,
 
 .title-bar-controls button {
   padding: 0;
-  display: block;
-  min-width: 16px;
-  min-height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  min-height: 18px;
 }
 
 .title-bar-controls button:active {
@@ -274,41 +284,17 @@ input[type="reset"]:disabled,
   outline: none;
 }
 
-.title-bar-controls button[aria-label="Minimize"] {
-  background-image: svg-load("/icon/minimize.svg");
-  background-repeat: no-repeat;
-  background-position: bottom 3px left 4px;
-}
-
-.title-bar-controls button[aria-label="Maximize"] {
-  background-image: svg-load("/icon/maximize.svg");
-  background-repeat: no-repeat;
-  background-position: top 2px left 3px;
-}
-
-.title-bar-controls button[aria-label="Restore"] {
-  background-image: svg-load("/icon/restore.svg");
-  background-repeat: no-repeat;
-  background-position: top 2px left 3px;
-}
-
-.title-bar-controls button[aria-label="Help"] {
-  background-image: svg-load("/icon/help.svg");
-  background-repeat: no-repeat;
-  background-position: top 2px left 5px;
-}
-
 .title-bar-controls button[aria-label="Close"] {
   margin-left: 2px;
   background-image: svg-load("/icon/close.svg");
   background-repeat: no-repeat;
-  background-position: top 3px left 4px;
+  background-position: center;
 }
 
 .status-bar {
   margin: 0px 1px;
   display: flex;
-  gap: 1px;
+  gap: 2px;
 }
 
 .status-bar-field {
@@ -316,7 +302,7 @@ input[type="reset"]:disabled,
     inset -1px -1px #dfdfdf,
     inset 1px 1px #808080;
   flex-grow: 1;
-  padding: 2px 3px;
+  padding: 3px 6px;
   margin: 0;
 }
 

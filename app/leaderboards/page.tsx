@@ -2,44 +2,43 @@
 import Desktop from "../components/desktop";
 import Window from "../components/window";
 import icons from "./icons.json";
-import { useReducer, useEffect, useState } from "react";
-import { signIn, useSession } from "next-auth/react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import { signIn } from "next-auth/react";
 import { GetLeaderboard } from "../database";
-import { UserData, LeaderboardUser } from "../components/database-parse-type";
+import { LeaderboardUser } from "../components/database-parse-type";
 
 function Title({ children }: { children: React.ReactNode }) {
-	return <div className="text-3xl text-black text-center">{children}</div>;
+	return <div className="text-xl font-bold text-black text-center mb-1">{children}</div>;
 }
 
 function Header({ children }: { children: React.ReactNode }) {
 	return (
-		<div className="flex window justify-center text-xl text-black text-center">
+		<div className="flex window justify-center items-center text-lg font-bold text-black text-center py-1">
 			{children}
 		</div>
 	);
 }
 
 function TWMTable({ children }: { children: React.ReactNode }) {
-	return <div className="flex justify-center">{children}</div>;
+	return <div className="flex justify-center w-full">{children}</div>;
 }
 
 function TableColumn({ children }: { children: React.ReactNode }) {
-	return <div className="grid">{children}</div>;
+	return <div className="grid flex-1">{children}</div>;
 }
 
 function TableHeader({ name }: { name: string }) {
 	return (
 		<div className="window text-center text-black min-w-[5px]">
-			<p className="text-lg mx-2">{name}</p>
+			<p className="text-base font-bold mx-2 py-0.5">{name}</p>
 		</div>
 	);
 }
 
 function TableItem({ item }: { item: string }) {
 	return (
-		<div className="flex justify-center bg-white border-2 text-black">
-			<p className="text-sm sm:text-lg mx-2">{item}</p>
+		<div className="flex justify-center bg-white text-black px-3 py-1 border border-gray-400">
+			<p className="text-base mx-2">{item}</p>
 		</div>
 	);
 }
@@ -48,24 +47,24 @@ function PageStatus(status: string) {
 	if (status === "loading") {
 		return (
 			<Desktop>
-				<Window title="Leaderboards" className="">
-					<div className="text-xl text-black">Loading...</div>
+				<Window title="Leaderboards" className="sm:w-[540px]">
+					<div className="text-base text-black p-4">Loading...</div>
 				</Window>
 			</Desktop>
 		);
 	} else if (status === "authing") {
 		return (
 			<Desktop>
-				<Window title="Leaderboards" className="">
-					<div className="text-xl text-black">Authenticating...</div>
+				<Window title="Leaderboards" className="sm:w-[540px]">
+					<div className="text-base text-black p-4">Authenticating...</div>
 				</Window>
 			</Desktop>
 		);
 	} else if (status === "error") {
 		return (
 			<Desktop>
-				<Window title="Error!" className="">
-					<div className="text-xl text-black">
+				<Window title="Error!" className="sm:w-[540px]">
+					<div className="text-base text-black p-4">
 						An error has occurred. Please try again later.
 					</div>
 				</Window>
@@ -74,13 +73,13 @@ function PageStatus(status: string) {
 	} else if (status === "unauthenticated") {
 		return (
 			<Desktop>
-				<Window title="Error!" className="grid justify-center items-center">
-					<div className="text-xl text-black text-center">
+				<Window title="Error!" className="sm:w-[540px] grid justify-center items-center p-4">
+					<div className="text-base text-black text-center mb-4">
 						You need to be signed in to Discord to access this page!
 					</div>
-					<div className="mx-auto mt-5 scale-120">
-						<button onClick={() => signIn("discord")}>Sign In</button>{" "}
-						<button onClick={() => (window.location.href = "/")}>Okay</button>
+					<div className="flex justify-center gap-3">
+						<button onClick={() => signIn("discord")} className="text-base font-bold py-1 px-4">Sign In</button>
+						<button onClick={() => (window.location.href = "/")} className="text-base font-bold py-1 px-4">Okay</button>
 					</div>
 				</Window>
 			</Desktop>
@@ -96,40 +95,41 @@ function Page(
 ) {
 	return (
 		<Desktop>
-			<Window title="Leaderboards" className="max-w-[700px]">
+			<Window title="Leaderboards" className="sm:w-[540px]">
 				<Title>Global Leaderboards</Title>
-				<p className="text-center text-black">(Loading may take a while.)</p>
-				<div className="mt-5" />
+				<p className="text-center text-sm text-gray-700 mb-3">(Loading may take a while.)</p>
 
 				<Header>
-					<p className="text-xl mr-2">Suns</p> <img src={icons.sun_icon} />
+					<span className="mr-2">Suns</span>{" "}
+					<img src={icons.sun_icon} alt="Suns" className="h-6 w-6 inline" />
 				</Header>
-				<div className="mt-2" />
+				<div className="mt-1" />
 				{AssignToLeaderboard("suns", suns)}
-				<div className="mt-5" />
-				
+				<div className="mt-4" />
+
 				<Header>
-					<p className="text-xl mr-2">Times Shattered</p>{" "}
-					<img src={icons.explode_icon} />
+					<span className="mr-2">Times Shattered</span>{" "}
+					<img src={icons.explode_icon} alt="Times Shattered" className="h-6 w-6 inline" />
 				</Header>
-				<div className="mt-2" />
+				<div className="mt-1" />
 				{AssignToLeaderboard("times_shattered", times_shattered)}
-				<div className="mt-5" />
+				<div className="mt-4" />
 
 				<Header>
-					<p className="text-xl mr-2">Times Transmitted</p>{" "}
-					<img src={icons.transmit_icon} />
+					<span className="mr-2">Times Transmitted</span>{" "}
+					<img src={icons.transmit_icon} alt="Times Transmitted" className="h-6 w-6 inline" />
 				</Header>
-				<div className="mt-2" />
+				<div className="mt-1" />
 				{AssignToLeaderboard("times_transmitted", times_transmitted)}
-				<div className="mt-5" />
+				<div className="mt-4" />
 
 				<Header>
-					<p className="text-xl mr-2">Wool</p> <img src={icons.wool_icon} />
+					<span className="mr-2">Wool</span>{" "}
+					<img src={icons.wool_icon} alt="Wool" className="h-6 w-6 inline" />
 				</Header>
-				<div className="mt-2" />
+				<div className="mt-1" />
 				{AssignToLeaderboard("wool", wool)}
-				<div className="mt-5" />
+				<div className="mt-4" />
 			</Window>
 		</Desktop>
 	);
@@ -173,12 +173,16 @@ function AssignToLeaderboard(
 				</TableColumn>
 				<TableColumn>
 					<TableHeader name="Amount" />
-					{leaderboard.map((user, index) => (
-						<TableItem
-							item={String((user.data as any)[type_name].toLocaleString())}
-							key={index}
-						/>
-					))}
+					{leaderboard.map((user, index) => {
+						const rawValue = (user.data as any)?.[type_name];
+						const displayValue =
+							rawValue !== undefined && rawValue !== null
+								? typeof rawValue === "number"
+									? rawValue.toLocaleString()
+									: String(rawValue)
+								: "0";
+						return <TableItem item={displayValue} key={index} />;
+					})}
 				</TableColumn>
 			</TWMTable>
 		);
@@ -195,8 +199,6 @@ export default function Main() {
 	const [rankedTimesShatteredUsers, setRankedTimesShatteredUsers] = useState<
 		LeaderboardUser[]
 	>([]);
-
-	const [, forceUpdate] = useReducer((x) => x + 1, 0);
 
 	useEffect(() => {
 		async function grabLeaderboardData() {
@@ -227,5 +229,5 @@ export default function Main() {
 		rankedSunUsers,
 		rankedTimesShatteredUsers,
 		rankedTimesTransmittedUsers,
-	); // return page
+	);
 }

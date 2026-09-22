@@ -1,10 +1,9 @@
 "use server";
 import axios from "axios";
 import { type Collection, MongoClient } from "mongodb";
-import { getServerSession } from "next-auth/next";
 import pLimit from "p-limit";
-import { authOptions } from "./api/auth/[...nextauth]/options";
-import { config } from "./lib/config"; // Ensure this path is correct
+import { auth } from "@/auth";
+import { config } from "./lib/config";
 import {
 	type BlogPost,
 	type ItemData,
@@ -14,43 +13,38 @@ import {
 } from "./components/database-parse-type";
 
 const limit = pLimit(3);
-const collection: null | Collection<any> = null;
 
 const dbCfg = config.database.connection;
 const username = encodeURIComponent(dbCfg.username);
 const password = encodeURIComponent(dbCfg.password);
 const uri = `mongodb://${username}:${password}@${dbCfg.host}:${dbCfg.port}/TheWorldMachine?authSource=admin`;
-const dbClient: MongoClient = new MongoClient(uri);
-dbClient.connect();
 
+let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
 
-async function isConnected(client: MongoClient) {
-	if (!client) {
-		return false;
-	}
-	try {
-		const adminDb = client.db().admin();
-		const result = await adminDb.ping();
-		return result && result.ok === 1;
-	} catch (error) {
-		client.close();
-		return false;
-	}
+declare global {
+	var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
-async function getCollection(name: string) {
-	if (collection != null) {
-		return collection;
+
+if (process.env.NODE_ENV === "development") {
+	if (!global._mongoClientPromise) {
+		client = new MongoClient(uri);
+		global._mongoClientPromise = client.connect();
 	}
-	if (await isConnected(dbClient)) await dbClient.connect();
+	clientPromise = global._mongoClientPromise;
+} else {
+	client = new MongoClient(uri);
+	clientPromise = client.connect();
+}
 
-	const db = dbClient.db("TheWorldMachine");
-
+async function getCollection(name: string): Promise<Collection<any>> {
+	const connectedClient = await clientPromise;
+	const db = connectedClient.db("TheWorldMachine");
 	return db.collection<any>(name);
 }
 
 export async function Fetch(user: string): Promise<UserData | null> {
-	const session = await getServerSession(authOptions);
-	// If session is invalid or doesn't match, return null instead of throwing
+	const session = await auth();
 	if (!session?.user_id || session.user_id !== user) {
 		console.warn(`Authentication check failed for user: ${user}. Session user: ${session?.user_id}`);
 		return null;
@@ -76,7 +70,7 @@ export async function Fetch(user: string): Promise<UserData | null> {
 	);
 
 	if (userDataFromDB) {
-		return userDataFromDB;
+		return userDataFromDB as unknown as UserData;
 	} else {
 		const defaultData = new UserData();
 		await user_data_collection.insertOne({ _id: safeUserId, ...defaultData });
@@ -87,7 +81,7 @@ export async function Fetch(user: string): Promise<UserData | null> {
 export async function GetNikogotchiData(
 	user: string,
 ): Promise<NikogotchiData | null> {
-	const session = await getServerSession(authOptions);
+	const session = await auth();
 	if (!session?.user_id || session.user_id !== user) {
 		return null;
 	}
@@ -108,7 +102,7 @@ export async function GetNikogotchiData(
 }
 
 export async function Update(user: Partial<UserData>) {
-	const session = await getServerSession(authOptions);
+	const session = await auth();
 	if (!session || !session.user_id) {
 		console.error("Update failed: User is not authenticated.");
 		return;
@@ -119,9 +113,15 @@ export async function Update(user: Partial<UserData>) {
 
 	const filteredData: { [key: string]: any } = {};
 
-	// Validate and filter incoming data
 	if (user.equipped_bg !== undefined && typeof user.equipped_bg === "string") {
-		filteredData.equipped_bg = user.equipped_bg;
+		const existingUser = await user_data_collection.findOne(
+			{ _id: safeUserId },
+			{ projection: { owned_backgrounds: 1 } },
+		);
+		const owned = existingUser?.owned_backgrounds || ["Default"];
+		if (owned.includes(user.equipped_bg)) {
+			filteredData.equipped_bg = user.equipped_bg;
+		}
 	}
 
 	if (
@@ -144,12 +144,10 @@ export async function Update(user: Partial<UserData>) {
 	) {
 		let desc = user.profile_description;
 
-		// Limit to 250 chars
 		if (desc.length > 250) {
 			desc = desc.substring(0, 250);
 		}
 
-		// Limit to 10 line breaks (which results in 11 lines)
 		const lines = desc.split("\n");
 		if (lines.length > 11) {
 			desc = lines.slice(0, 11).join("\n");
@@ -246,8 +244,9 @@ export async function FetchItemData() {
 	}
 }
 
-const users: any = {};
+const users: Record<string, string> = {};
 const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
+let tokenUnauthorized = false;
 
 export async function GetDiscordData(userID: string) {
 	if (!userID) return "";
@@ -261,27 +260,44 @@ export async function GetDiscordData(userID: string) {
 	const safeUserId = String(userID);
 
 	if (users[safeUserId] === undefined) {
+		if (tokenUnauthorized) {
+			users[safeUserId] = `User ${safeUserId}`;
+			return users[safeUserId];
+		}
+
 		try {
+			const botToken = config.discord?.token?.trim();
 			const response = await axios.get(
-				`https://discord.com/api/users/${safeUserId}`,
+				`https://discord.com/api/v10/users/${safeUserId}`,
 				{
 					headers: {
-						Authorization: `Bot ${config.discord.token}`,
+						Authorization: `Bot ${botToken}`,
+						"User-Agent": "DiscordBot (https://theworldmachine.xyz, 1.0.0)",
 					},
 				},
 			);
 
 			users[safeUserId] = response.data.username;
 		} catch (e: any) {
-			if (e.message === "Request failed with status code 429") {
-				await wait((e.response.data.retry_after + 0.5) * 1000);
+			if (e.response && e.response.status === 429) {
+				const retryAfter = Number(e.response.data?.retry_after ?? e.response.headers["retry-after"] ?? 1);
+				const delay = Number.isFinite(retryAfter) ? retryAfter : 1;
+				await wait((delay + 0.5) * 1000);
 				return await GetDiscordData(safeUserId);
 			}
 			if (e.response && e.response.status === 404) {
 				users[safeUserId] = `[Deleted User]`;
 				return users[safeUserId];
 			}
-			throw e;
+			if (e.response && e.response.status === 401) {
+				tokenUnauthorized = true;
+				console.error("Discord bot token in config.yml is unauthorized (HTTP 401). Please update it with a valid token from Discord Developer Portal.");
+				users[safeUserId] = `User ${safeUserId}`;
+				return users[safeUserId];
+			}
+			console.error(`Failed to fetch Discord user ${safeUserId}:`, e.message);
+			users[safeUserId] = `[Unknown User]`;
+			return users[safeUserId];
 		}
 	}
 
@@ -314,14 +330,24 @@ export async function FetchBlogPosts() {
 }
 
 export async function UploadBlogPost(post: BlogPost) {
-	const session = await getServerSession(authOptions);
-	if (!session || ["744276454946242723", "302883948424462346"].includes(`${session.user_id}`))return;
+	const session = await auth();
+	const allowedAdmins = ["744276454946242723", "302883948424462346"];
+	if (!session || !allowedAdmins.includes(`${session.user_id}`)) return;
 
-	if (!post) return;
+	if (!post || typeof post.title !== "string" || typeof post.content !== "string") return;
 
 	const blogData = await getCollection("Blog");
+	const count = await blogData.countDocuments();
 
-	const result = await blogData.insertOne(post);
+	const newPost: BlogPost = {
+		title: post.title.slice(0, 150),
+		description: typeof post.description === "string" ? post.description.slice(0, 300) : "",
+		content: post.content.slice(0, 20000),
+		datetime: new Date(),
+		post_id: count,
+	};
+
+	const result = await blogData.insertOne(newPost);
 
 	if (result?.insertedId) {
 		console.log(`New post created with the following id: ${result.insertedId}`);

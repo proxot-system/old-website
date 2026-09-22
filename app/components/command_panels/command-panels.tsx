@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 export default function CommandPanel({
 	title,
 	description,
@@ -10,16 +8,15 @@ export default function CommandPanel({
 	image: string;
 }) {
 	return (
-		<div className="window grid place-content-center grid_cols-[120px_1fr] lg:flex lg:max-w-[800px] mx-auto h-max mb-5">
+		<div className="window flex flex-col md:flex-row items-center gap-4 p-3 mb-4 w-full box-border">
 			<img
 				src={`/command_examples/${image}.png`}
 				alt={title}
-				className="m-auto place-content-stretch w-[1000px] lg:w-[350px] lg:mx-5"
+				className="w-full md:w-[280px] max-w-full h-auto object-contain border border-gray-400 flex-shrink-0"
 			/>
-
-			<div className="mx-10 mb-10">
-				<h1 className="text-3xl text-twm-logo-bg-light mt-10">{title}</h1>
-				<p className="text-lg mt-5 text-black">{description}</p>
+			<div className="flex-1 min-w-0">
+				<h2 className="text-xl font-bold text-twm-logo-bg-light mb-2">{title}</h2>
+				<p className="text-base text-black leading-relaxed">{description}</p>
 			</div>
 		</div>
 	);

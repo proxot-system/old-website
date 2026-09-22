@@ -1,43 +1,34 @@
 import React from "react";
-import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
 
 export default function DiscordLogin() {
-	const startSignIn = () => {
-		signIn("discord", { callbackUrl: "/profile" });
-	};
-
 	const { data: session, status } = useSession();
 
-	if (!session && status !== "loading") {
+	if (status === "loading") {
 		return (
-			<div>
-				<button
-					onClick={() => startSignIn()}
-					className="w-auto text-lg flex ml-3"
-				>
-					Sign In
-				</button>
-			</div>
-		);
-	} else if (status === "loading") {
-		return (
-			<div>
-				<button className="w-auto text-lg flex ml-3">Loading</button>
-			</div>
+			<button disabled className="h-8 text-base font-bold px-3 flex items-center">
+				Loading...
+			</button>
 		);
 	}
 
-	if (session) {
+	if (!session) {
 		return (
-			<div>
-				<button
-					onClick={() => signOut()}
-					className="w-auto text-lg flex ml-3 h-8 my-auto"
-				>
-					Sign Out
-				</button>
-			</div>
+			<button
+				onClick={() => signIn("discord", { callbackUrl: "/profile" })}
+				className="h-8 text-base font-bold px-3 flex items-center"
+			>
+				Sign In
+			</button>
 		);
 	}
+
+	return (
+		<button
+			onClick={() => signOut()}
+			className="h-8 text-base font-bold px-3 flex items-center"
+		>
+			Sign Out
+		</button>
+	);
 }

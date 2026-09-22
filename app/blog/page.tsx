@@ -1,8 +1,7 @@
 "use client";
-import Head from "next/head";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, signOut, useSession } from "next-auth/react";
-import { Suspense, useEffect, useState } from "react"; // Added Suspense import
+import { useSession } from "next-auth/react";
+import { Suspense, useEffect, useState } from "react";
 import type { BlogPost } from "../components/database-parse-type";
 import Desktop from "../components/desktop";
 import Window from "../components/window";
@@ -18,14 +17,14 @@ function formatDate(date: Date): string {
 		hour12: true,
 	};
 
-	return date.toLocaleString("en-US", options);
+	return new Date(date).toLocaleString("en-US", options);
 }
 
 function BlogContent() {
 	const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
 	const [userID, setUserID] = useState<null | string>(null);
 
-	const { data: discordData, status } = useSession();
+	const { data: discordData } = useSession();
 	const searchParams = useSearchParams();
 	const router = useRouter();
 
@@ -37,23 +36,23 @@ function BlogContent() {
 	}, []);
 
 	useEffect(() => {
-		const login = async () => {
-			try {
-				if (!discordData) return;
-				var userData = await DiscordLogIn(discordData);
-				if (userData == null) return;
-				setUserID(userData._id as string);
-			} catch (error: any) {
-				if (error.message === "AUTH_REQUIRED") {
-					console.warn("Session is invalid, triggering re-authentication.");
-					await signOut({ redirect: false });
-					signIn("discord");
-				} else {
+		if (discordData) {
+			const sessionUserId = (discordData as any).user_id;
+			if (sessionUserId) {
+				setUserID(sessionUserId);
+				return;
+			}
+			const login = async () => {
+				try {
+					const userData = await DiscordLogIn(discordData);
+					if (userData == null) return;
+					setUserID(userData._id as string);
+				} catch (error: any) {
 					console.error("Error fetching data from discord:", error);
 				}
-			}
-		};
-		login();
+			};
+			login();
+		}
 	}, [discordData]);
 
 	function ButtonPane({ post, id }: { post: BlogPost; id: number }) {
@@ -72,7 +71,7 @@ function BlogContent() {
 	}
 
 	function DisplayBlogPost({ id }: { id: number }) {
-		const post = blogPosts.filter((p) => p.post_id == id)[0];
+		const post = blogPosts.find((p) => p.post_id === id);
 
 		if (post == undefined) {
 			return (
@@ -92,13 +91,6 @@ function BlogContent() {
 
 		return (
 			<div className=" text-black min-w-[5px]">
-				<Head>
-					<title>Proxot System</title>
-					<meta name="description" content={post.description} />
-					<meta property="og:title" content={post.title} />
-					<meta property="og:description" content={post.description} />
-					<meta property="og:url" content="https://www.theworldmachine.xyz/" />
-				</Head>
 				<div className="window mb-5">
 					<div className="text-sm mx-5 my-2">
 						<p className="text-2xl mt-5 text-center">{post.title}</p>
@@ -134,7 +126,7 @@ function BlogContent() {
 					title: title,
 					description: desc,
 					content: content,
-					datetime: new Date(Date.now()),
+					datetime: new Date(),
 					post_id: blogPosts.length,
 				};
 

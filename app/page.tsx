@@ -4,172 +4,72 @@ import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import Window from "./components/window";
 
+const introMessages = [
+	"...",
+	"You got to this place.",
+	"...Why?",
+	"You're already too late. This World is just like the others.",
+	"This will be apparent when you see some of the characters.",
+	"This place was never worth your time.",
+	"Do you still want to get in?",
+	"Very well. Then remember this.",
+	"You only have one shot, user.",
+];
+
 export default function Page() {
-  const [currentWindow, setCurrentWindow] = useState<any>(<div />);
-  const [index, setIndex] = useState(0);
+	const [index, setIndex] = useState(0);
+	const [completed, setCompleted] = useState(false);
 
-  let seenIntroduction = Cookies.get("seen_intro");
+	useEffect(() => {
+		if (Cookies.get("seen_intro") === "true") {
+			setCompleted(true);
+		}
+	}, []);
 
-  useEffect(() => {
-    if (seenIntroduction === "true") {
-      return;
-    }
+	const handleNext = () => {
+		if (index >= introMessages.length - 1) {
+			Cookies.set("seen_intro", "true");
+			setCompleted(true);
+		} else {
+			setIndex((prev) => prev + 1);
+		}
+	};
 
-    switch (index) {
-      case 0:
-        setCurrentWindow(() => {
-          return (
-            <Window title="???" className="">
-              <p className="text-xl text-black mb-2">...</p>
-              <button
-                className="mx-uato position-relative text-lg"
-                onClick={() => {
-                  setIndex((prev) => prev + 1);
-                }}
-              >
-                Ok
-              </button>
-            </Window>
-          );
-        });
-        break;
-      case 1:
-        setCurrentWindow(() => {
-          return (
-            <Window title="???" className="">
-              <p className="text-xl text-black mb-2">You got to this place.</p>
-              <button
-                className="mx-auto position-relative text-lg"
-                onClick={() => {
-                  setIndex((prev) => prev + 1);
-                }}
-              >
-                Ok
-              </button>
-            </Window>
-          );
-        });
-        break;
-      case 2:
-        setCurrentWindow(() => {
-          return (
-            <Window title="???" className="">
-              <p className="text-xl text-black mb-2">...Why?</p>
-              <button
-                className="mx-auto position-relative text-lg"
-                onClick={() => {
-                  setIndex((prev) => prev + 1);
-                }}
-              >
-                Ok
-              </button>
-            </Window>
-          );
-        });
-        break;
-      case 3:
-        setCurrentWindow(() => {
-          return (
-            <Window title="???" className="">
-              <p className="text-xl text-black mb-2">
-                You're already too late. This World is just like the
-                others.
-              </p>
-              <button
-                className="mx-auto position-relative text-lg"
-                onClick={() => {
-                  setIndex((prev) => prev + 1);
-                }}
-              >
-                Ok
-              </button>
-            </Window>
-          );
-        });
-        break;
-      case 4:
-        setCurrentWindow(() => {
-          return (
-            <Window title="???" className="">
-              <p className="text-xl text-black mb-2">
-                This will be apparent when you see some of the characters.
-              </p>
-              <button
-                className="mx-auto position-relative text-lg"
-                onClick={() => {
-                  setIndex((prev) => prev + 1);
-                }}
-              >
-                Ok
-              </button>
-            </Window>
-          );
-        });
-        break;
-      case 4:
-        setCurrentWindow(() => {
-          return (
-            <Window title="???" className="">
-              <p className="text-xl text-black mb-2">
-                This place was never worth your time.
-              </p>
-              <button
-                className="mx-auto position-relative text-lg"
-                onClick={() => {
-                  setIndex((prev) => prev + 1);
-                }}
-              >
-                Ok
-              </button>
-            </Window>
-          );
-        });
-        break;
-      case 5:
-        setCurrentWindow(() => {
-          return (
-            <Window title="???" className="">
-              <p className="text-xl text-black mb-2">
-                Do you still want to get in?
-              </p>
-              <button
-                className="mx-auto position-relative text-lg"
-                onClick={() => {
-                  setIndex((prev) => prev + 1);
-                }}
-              >
-                Ok
-              </button>
-            </Window>
-          );
-        });
-        break;
-      case 6:
-        setCurrentWindow(() => {
-          return (
-            <Window title="???" className="">
-              <p className="text-xl text-black mb-2">
-                Very well. Then remember this.
-              </p>
-              <button
-                className="mx-auto position-relative text-lg"
-                onClick={() => {
-                  setIndex((prev) => prev + 1);
-                }}
-              >
-                Ok
-              </button>
-            </Window>
-          );
-        });
-        break;
-      case 7:
-        setCurrentWindow(<div />);
-        alert("You only have one shot, user.");
-        Cookies.set("seen_intro", "true");
-        break;
-    }
-  }, [index]);
+	if (completed) {
+		return <Desktop>{null}</Desktop>;
+	}
 
-  return <Desktop>{currentWindow}</Desktop>;
+	const isLast = index === introMessages.length - 1;
+
+	return (
+		<Desktop>
+			<Window
+				title="The World Machine"
+				className="sm:w-[420px]"
+			>
+				<div className="p-3">
+					<div className="flex items-start gap-4 mb-6">
+						<img
+							src="/icon.png"
+							alt="Notice"
+							width={36}
+							height={36}
+							className="h-9 w-9 flex-shrink-0 mt-1 object-contain select-none"
+						/>
+						<p className="text-base text-black font-main leading-relaxed select-none">
+							{introMessages[index]}
+						</p>
+					</div>
+					<div className="flex justify-center">
+						<button
+							onClick={handleNext}
+							className="px-6 py-1 text-base font-bold min-w-[90px]"
+						>
+							{isLast ? "OK" : "Next"}
+						</button>
+					</div>
+				</div>
+			</Window>
+		</Desktop>
+	);
 }

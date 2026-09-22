@@ -15,9 +15,6 @@ export default function Profile() {
 	const [userData, setUserData] = useState<null | UserData>(null);
 	const [userToUpdate, setUserToUpdate] = useState<null | UserData>(null);
 
-	const [userID, setUserID] = useState<null | string>(null);
-	const [saveToDatabase, setSaveToDatabase] = useState<boolean>(false);
-
 	const [items, setItems] = useState<ItemData>();
 	const [textLength, setTextLength] = useState<number>(0);
 	const [checked, setChecked] = useState(false);
@@ -38,7 +35,7 @@ export default function Profile() {
 			return (
 				<Desktop>
 					<Window title="Profile" className="">
-						<div className="text-xl text-black">Authenticating...</div>
+						<div className="text-base text-black p-4">Authenticating...</div>
 					</Window>
 				</Desktop>
 			);
@@ -46,7 +43,7 @@ export default function Profile() {
 			return (
 				<Desktop>
 					<Window title="Profile" className="">
-						<div className="text-xl text-black">Loading...</div>
+						<div className="text-base text-black p-4">Loading...</div>
 					</Window>
 				</Desktop>
 			);
@@ -54,7 +51,7 @@ export default function Profile() {
 			return (
 				<Desktop>
 					<Window title="Profile" className="">
-						<div className="text-xl text-black">Loading Profile...</div>
+						<div className="text-base text-black p-4">Loading Profile...</div>
 					</Window>
 				</Desktop>
 			);
@@ -62,7 +59,7 @@ export default function Profile() {
 			return (
 				<Desktop>
 					<Window title="Error!" className="">
-						<div className="text-xl text-black">
+						<div className="text-base text-black p-4">
 							An error has occurred. Please try again later.
 						</div>
 					</Window>
@@ -73,9 +70,9 @@ export default function Profile() {
 				<Desktop>
 					<Window
 						title="Redirecting..."
-						className="grid justify-center items-center"
+						className="grid justify-center items-center p-4"
 					>
-						<div className="text-xl text-black text-center">
+						<div className="text-base text-black text-center">
 							Session expired. Redirecting to login...
 						</div>
 					</Window>
@@ -84,113 +81,43 @@ export default function Profile() {
 		}
 	}
 
-	function Page() {
-		const saveChanges = () => {
-			setSaveToDatabase(true);
-
+	const saveChanges = async () => {
+		if (!userToUpdate) return;
+		setSaveStatus("Saving...");
+		try {
+			await updateToDatabase(userToUpdate);
 			setUserData(userToUpdate);
-			setSaveStatus("...");
+			setSaveStatus("Saved successfully!");
 			setSaved(true);
-		};
+		} catch (e) {
+			console.error("Update failed, attempting re-auth", e);
+			setSaveStatus("Save failed!");
+			signIn("discord");
+		}
+	};
 
-		const shouldSave = (data: any) => {
-			setUserToUpdate((prevUser) => ({ ...prevUser, ...data }) as UserData);
+	const shouldSave = (data: Partial<UserData>) => {
+		setUserToUpdate((prevUser) => ({ ...prevUser, ...data }) as UserData);
+		setSaveStatus("Unsaved changes");
+		setSaved(false);
+	};
 
-			setSaveStatus("You have unsaved changes!");
-			setSaved(false);
-		};
+	const updateProfileDescription = (
+		event: ChangeEvent<HTMLTextAreaElement>,
+	) => {
+		const newValue = event.target.value.substring(0, 250);
+		shouldSave({ profile_description: newValue });
+		setTextLength(newValue.length);
+	};
 
-		const updateLanguage = (value: string) => {
-			shouldSave({ translation_language: value });
-		};
+	const updateBadgeNotifications = (e: React.ChangeEvent<HTMLInputElement>) => {
+		shouldSave({ badge_notifications: e.target.checked });
+		setChecked(e.target.checked);
+	};
 
-		const updateProfileDescription = (
-			event: ChangeEvent<HTMLTextAreaElement>,
-		) => {
-			const newValue = event.target.value.substring(0, 250);
-			shouldSave({ profile_description: newValue });
-			setTextLength(newValue.length);
-		};
-
-		const updateBadgeNotifications = (e: any) => {
-			shouldSave({ badge_notifications: e.target.checked });
-			setChecked(e.target.checked);
-		};
-
-		const updateBackground = (background: string) => {
-			shouldSave({ equipped_bg: background });
-		};
-
-		return (
-			<Desktop>
-				<Window title="Profile" className="max-w-[500px]">
-					<div className="window w-full sticky top-0 bg-opacity-100 z-10">
-						<div className="font-main flex justify-center">
-							<p className="text-sm sm:text-xl text-center text-black mr-6 my-auto">
-								{saveStatus}
-							</p>
-							<button
-								onClick={saveChanges}
-								type="submit"
-								disabled={saved}
-								className={
-									saved
-										? "hover:cursor-not-allowed text-xl mb-2 my-2"
-										: "text-xl mb-2 my-2"
-								}
-							>
-								Save Changes
-							</button>
-						</div>
-					</div>
-
-					<div className="font-main my-10 mx-10 grid place-content-center">
-						<h1 className="text-3xl ml-5 text-black text-center">Settings</h1>
-						<div className="field-row mx-auto scale-150">
-							<label className="text-black">
-								<input
-									title="Disable or enable badge notifications. If enabled, this will show you when you get a new badge."
-									type="checkbox"
-									checked={checked}
-									onChange={updateBadgeNotifications}
-								/>{" "}
-								Badge Notifications
-							</label>
-						</div>
-
-						<hr className="my-10" />
-
-						<h1 className="text-3xl mt-2 text-black text-center">Profile</h1>
-
-						<h1 className="text-xl text-black text-center mt-5 mb-5">
-							Description
-						</h1>
-						<h1 className="text-black text-sm text-right">{textLength}/250</h1>
-						<textarea
-							id="description"
-							name="description"
-							title="Change your profile description. This shows up when you run the /profile <user> command."
-							value={userToUpdate?.profile_description ?? ""}
-							onChange={(e) => updateProfileDescription(e)}
-							maxLength={250}
-							className="field-row resize-none text-black text-lg p-2 mb-2 text-center"
-						/>
-
-						<h1 className="text-xl text-black text-center mt-5 mb-5">
-							Background
-						</h1>
-
-						<BackgroundSelection
-							ownedBackgrounds={userToUpdate?.owned_backgrounds ?? ["Default"]}
-							equippedBackground={userToUpdate?.equipped_bg ?? "Default"}
-							allBackgrounds={items?.backgrounds ?? {}}
-							onChange={updateBackground}
-						/>
-					</div>
-				</Window>
-			</Desktop>
-		);
-	}
+	const updateBackground = (background: string) => {
+		shouldSave({ equipped_bg: background });
+	};
 
 	useEffect(() => {
 		const fetchItems = async () => {
@@ -259,30 +186,69 @@ export default function Profile() {
 		login();
 	}, [discordData, status]);
 
-	useEffect(() => {
-		const updateData = async () => {
-			if (!saveToDatabase) {
-				return;
-			}
-			if (!userData) {
-				return;
-			}
-
-			try {
-				await updateToDatabase(userData);
-			} catch (e) {
-				console.error("Update failed, attempting re-auth", e);
-				signIn("discord");
-			}
-
-			setSaveToDatabase(false);
-		};
-
-		updateData();
-	}, [saveToDatabase]);
-
 	if (pageStatus === "success" && userToUpdate) {
-		return Page();
+		return (
+			<Desktop>
+				<Window title="Profile Properties" className="w-full">
+					<div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-400">
+						<span className="text-base font-bold text-black">{saveStatus}</span>
+						<button
+							onClick={saveChanges}
+							type="button"
+							disabled={saved}
+							className="text-base font-bold py-1 px-4"
+						>
+							Save Changes
+						</button>
+					</div>
+
+					<fieldset>
+						<legend>Notifications</legend>
+						<div className="flex items-center py-1">
+							<input
+								id="badge_notif"
+								type="checkbox"
+								checked={checked}
+								onChange={updateBadgeNotifications}
+								className="cursor-pointer mr-3"
+							/>
+							<label htmlFor="badge_notif" className="text-base text-black cursor-pointer select-none">
+								Badge Notifications
+							</label>
+						</div>
+					</fieldset>
+
+					<fieldset>
+						<legend>Profile Description</legend>
+						<div className="flex justify-between items-center mb-1">
+							<label htmlFor="description" className="text-base font-bold text-black">
+								Bio:
+							</label>
+							<span className="text-sm text-gray-700">{textLength}/250</span>
+						</div>
+						<textarea
+							id="description"
+							name="description"
+							value={userToUpdate?.profile_description ?? ""}
+							onChange={updateProfileDescription}
+							maxLength={250}
+							rows={4}
+							className="w-full text-base font-main p-2 text-black bg-white resize-none text-left box-border"
+						/>
+					</fieldset>
+
+					<fieldset className="mb-0">
+						<legend>Background Selection</legend>
+						<BackgroundSelection
+							ownedBackgrounds={userToUpdate?.owned_backgrounds ?? ["Default"]}
+							equippedBackground={userToUpdate?.equipped_bg ?? "Default"}
+							allBackgrounds={items?.backgrounds ?? {}}
+							onChange={updateBackground}
+						/>
+					</fieldset>
+				</Window>
+			</Desktop>
+		);
 	} else {
 		return PageStatus(pageStatus);
 	}

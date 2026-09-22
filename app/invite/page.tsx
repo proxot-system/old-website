@@ -1,9 +1,6 @@
 "use client";
 import React from "react";
-import Image from "next/image";
-import NavBar from "../components/NavBar/nav-bar";
 import CommandPanel from "../components/command_panels/command-panels";
-import Footer from "../components/footer";
 import Desktop from "../components/desktop";
 import Window from "../components/window";
 
@@ -18,18 +15,20 @@ export default function Invite() {
 
   return (
     <Desktop>
-      <Window title="Invite" className="max-w-[800px]">
-        <div className="flex justify-center flex-col font-main my-10 mx-10">
-          <p className="text-center text-lg text-black mb-5">
+      <Window title="Invite" className="sm:w-[720px]">
+        <div className="flex flex-col font-main p-2">
+          <p className="text-center text-base text-black mb-4 leading-relaxed">
             You want to interact with The World Machine through Proxot? That's great! You can do that using their Discord bot profile, here's a few
             things you'll also be able to do, and a shiny button to do the deed.
           </p>
-          <button
-            onClick={handleClick}
-            className="flex justify-between text-black mx-auto h-16 mb-10"
-          >
-            <h1 className="text-center text-2xl my-auto">Add Now</h1>
-          </button>
+          <div className="flex justify-center mb-6">
+            <button
+              onClick={handleClick}
+              className="text-base font-bold px-6 py-2"
+            >
+              Add Now
+            </button>
+          </div>
 
           <CommandPanel
             image="transmissions"

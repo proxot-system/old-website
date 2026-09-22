@@ -1,3 +1,7 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
 export default function Icon({
 	filename,
 	icon_name,
@@ -7,21 +11,33 @@ export default function Icon({
 	icon_name: string;
 	redirect: string;
 }) {
+	const router = useRouter();
+
+	const handleClick = () => {
+		if (redirect.startsWith("http://") || redirect.startsWith("https://")) {
+			window.open(redirect, "_blank", "noopener,noreferrer");
+		} else {
+			router.push(redirect);
+		}
+	};
+
 	return (
 		<div
-			onClick={() => (window.location.href = redirect)}
-			className="hover:cursor-pointer flex flex-col justify-center font-main w-[30px] scale-125 sm:scale-150 mb-10 mr-5 sm:mr-10"
+			onClick={handleClick}
+			className="hover:cursor-pointer flex flex-col items-center justify-start font-main w-14 mb-2 select-none cursor-pointer"
 		>
-			<p className="text-center text-[10px] mb-5 mx-auto">
-				<img
-					src={`/desktop-icons/${filename}.png`}
-					alt={icon_name}
-					width={30}
-					height={30}
-					className="mx-auto"
-				/>
+			<img
+				src={`/desktop-icons/${filename}.png`}
+				alt={icon_name}
+				width={32}
+				height={32}
+				loading="eager"
+				decoding="sync"
+				className="mx-auto block h-8 w-8 object-contain"
+			/>
+			<span className="text-center text-white text-xs mt-1 leading-tight select-none [text-shadow:none]">
 				{icon_name}
-			</p>
+			</span>
 		</div>
 	);
 }
